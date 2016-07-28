@@ -1,8 +1,7 @@
-var client = require('express');
+var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var exphbs = require('express-handlebars');
 var expressValidator = require('express-validator');
 var flash = require('express-session');
 var session = require('connect-flash');
@@ -12,16 +11,59 @@ var mongo = require('nongodb');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/Writing-Tree');
 var db = mongoose.connection;
+
+var routes = require('./routes/index');
+var users = require('./routes/users');
+
+var client = express();
+
 var handlebars = require('express-handlebars').create({
     defaultLayout: 'main'
 });
 
+client.set('views', path.join(__dirname, 'views'));
 client.engine('handlebars', handlebars.engine);
 client.set('view engine', 'handlebars');
+
+client.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+client.use(cookieParser());
 
 client.set('port', process.env.PORT || 3000);
 
 client.use(express.static(__dirname + '/public'));
+
+client.use(session({
+  secret: 'secretTemp',
+  saveUninitialized: true,
+  resave: true
+}));
+
+client.use(expressValidator({
+  errorFormatter: function(param, msg, value) {
+      var namespace = param.split('.')
+      , root    = namespace.shift()
+      , formParam = root;
+
+    while(namespace.length) {
+      formParam += '[' + namespace.shift() + ']';
+    }
+    return {
+      param : formParam,
+      msg   : msg,
+      value : value
+    };
+  }
+}));
+
+client.use(flash());
+
+client.use(function (req, res, next){
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  next();
+})
 
 client.get('/', function(req, res) {
     res.render("index");
