@@ -9,7 +9,17 @@
   "author": "Devesh Singh, Gabriel Britain, Edan Meyer, Florian Janke",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.14.0",
-    "express-handlebars": "^3.0.0"
+    "express": "*",
+    "express-handlebars": "*",
+    "express-validator": "*",
+    "express-messages": "*",
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "connect-flash": "*",
+    "mongodb": "*",
+    "mongoose": "*",
+    "passport": "*",
+    "passport-http": "*",
+    "passport-local": "*"
   }
 }
