@@ -13,6 +13,8 @@
     "express-handlebars": "*",
     "express-validator": "*",
     "express-messages": "*",
+    "express-session": "*",
+    "cookie-parser": "*",
     "bcryptjs": "*",
     "body-parser": "*",
     "connect-flash": "*",

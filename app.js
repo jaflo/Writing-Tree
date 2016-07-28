@@ -7,7 +7,7 @@ var flash = require('express-session');
 var session = require('connect-flash');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var mongo = require('nongodb');
+var mongo = require('mongodb');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/Writing-Tree');
 var db = mongoose.connection;
@@ -26,18 +26,21 @@ client.engine('handlebars', handlebars.engine);
 client.set('view engine', 'handlebars');
 
 client.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-client.use(cookieParser());
+client.use(bodyParser.urlencoded({ extended: false }));
+client.use(cookieParser('secret'));
 
 client.set('port', process.env.PORT || 3000);
 
 client.use(express.static(__dirname + '/public'));
 
 client.use(session({
-  secret: 'secretTemp',
+  secret: 'secret',
   saveUninitialized: true,
   resave: true
 }));
+
+client.use(passport.initialize());
+client.use(passport.session());
 
 client.use(expressValidator({
   errorFormatter: function(param, msg, value) {
@@ -63,6 +66,10 @@ client.use(function (req, res, next){
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   next();
+})
+
+client.listen(client.get('port'), function() {
+    console.log('Express has started on http://localhost:' + client.get('port') + '; press Ctrl-C to terminate.');
 })
 
 client.get('/', function(req, res) {
@@ -132,7 +139,3 @@ client.use(function(req, res) {
     res.status(404);
     res.render('404');
 });
-
-client.listen(client.get('port'), function() {
-    console.log('Express has started on http://localhost:' + client.get('port') + '; press Ctrl-C to terminate.');
-})
