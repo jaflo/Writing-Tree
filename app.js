@@ -1,9 +1,21 @@
-var express = require('express');
-var client = express();
-
+var client = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var exphbs = require('express-handlebars');
+var expressValidator = require('express-validator');
+var flash = require('express-session');
+var session = require('connect-flash');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var mongo = require('nongodb');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/Writing-Tree');
+var db = mongoose.connection;
 var handlebars = require('express-handlebars').create({
     defaultLayout: 'main'
 });
+
 client.engine('handlebars', handlebars.engine);
 client.set('view engine', 'handlebars');
 
