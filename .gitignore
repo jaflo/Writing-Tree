@@ -1,2 +1,5 @@
 #ignore packages installed by npm
 node_modules
+
+#ignore compiled output from LESS
+public/styles.css
