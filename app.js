@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var lessMiddleware = require('less-middleware');
 var expressValidator = require('express-validator');
 var flash = require('express-session');
 var session = require('connect-flash');
@@ -31,6 +32,10 @@ client.use(cookieParser('secret'));
 
 client.set('port', process.env.PORT || 3000);
 
+client.use(lessMiddleware({
+	src: __dirname + "/public",
+	compress: true
+}));
 client.use(express.static(__dirname + '/public'));
 
 client.use(session({
