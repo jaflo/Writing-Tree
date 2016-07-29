@@ -32,8 +32,7 @@ client.use(cookieParser('secret'));
 
 client.set('port', process.env.PORT || 3000);
 
-client.use(lessMiddleware({
-	src: __dirname + "/public",
+client.use(lessMiddleware(__dirname + "/public", {
 	compress: true
 }));
 client.use(express.static(__dirname + '/public'));

@@ -1,268 +1,55 @@
-<div id="wrapper">
-    <header>
-        <div>
-            <a href="" id="user" title="That's you!">jaflo</a>
-            <h1><a href="" title="Go home">Website</a></h1>
-            <div id="userdropdown">
-                <a href="" class="darktoggle">Dark mode <div></div></a>
-                <a href="">Favorites</a>
-                <a href="">My continuations</a>
-                <a href="">Log out</a>
-            </div>
-        </div>
-    </header>
-    <main>
-        <div id="introduction">
-            Here is some introduction that explains how everything works. Should explain what a continuation is, how to use the website, insentivize writing. Explaining jumps, stars, and flagging would be helpful.
-        </div>
-        <div id="story">
-            <div class="content starter">
-                <p>Some common starter.</p>
-            </div>
-        </div>
-        <div id="navigationplaceholder" style="height: 0px;"></div>
-        <div id="navigation" class="options">
-            <button class="continue" title="Find a continuation">Continue!</button>
-            <div class="more">
-                <button class="showmore" title="Write, jump, save, dislike, or flag this"><i class="material-icons">more_vert</i></button>
-                <button class="write" title="Write your own continuation">
-                    <i class="material-icons">create</i>
-                    <span>Write</span>
-                </button>
-                <button class="jump" title="Jump to an alternate continuation">
-                    <i class="material-icons">redo</i>
-                    <span>Jump</span>
-                </button>
-                <button class="star" title="Save this for later">
-                    <i class="material-icons">star</i>
-                    <span>Star</span>
-                </button>
-                <button class="flag" title="Flag inappropriate content">
-                    <i class="material-icons">flag</i>
-                    <span>Flag</span>
-                </button>
-            </div>
-        </div>
-        <div id="loader">
-            <i></i>
-            <i></i>
-            <i></i>
-            <i></i>
-            <i></i>
-            <i></i>
-        </div>
-        <form action="" id="write">
-            <label for="submission" class="alert">Continue the story! This is not the place for commentary.</label>
-            <textarea name="" id="submission" cols="30" rows="10" placeholder="You can make text **bold** and *italic*"></textarea>
-            <div class="options">
-                <button type="submit">Submit</button>
-                <button type="button" class="cancel">Cancel</button>
-            </div>
-        </form>
-    </main>
-    <div id="shortcuts">
-        <h2>Keyboard shortcuts</h2>
-        <table class="big">
-            <tbody>
-                <tr>
-                    <td><kbd>U</kbd></td>
-                    <td><kbd>I</kbd></td>
-                    <td><kbd>O</kbd></td>
-                </tr>
-                <tr>
-                    <td>Continue</td>
-                    <td>Write</td>
-                    <td>Star</td>
-                </tr>
-            </tbody>
-        </table>
-        And a couple more:
-        <table>
-            <tbody>
-                <tr>
-                    <td>Continue</td>
-                    <td><kbd>N</kbd> or <kbd>U</kbd></td>
-                </tr>
-                <tr>
-                    <td>Write</td>
-                    <td><kbd>W</kbd> or <kbd>I</kbd></td>
-                </tr>
-                <tr>
-                    <td>Jump</td>
-                    <td><kbd>J</kbd></td>
-                </tr>
-                <tr>
-                    <td>Star</td>
-                    <td><kbd>S</kbd> or <kbd>O</kbd></td>
-                </tr>
-                <tr>
-                    <td>Flag</td>
-                    <td><kbd>F</kbd></td>
-                </tr>
-                <tr>
-                    <td>Toggle darkmode</td>
-                    <td><kbd>D</kbd></td>
-                </tr>
-                <tr>
-                    <td>Toggle cheatsheet</td>
-                    <td><kbd>?</kbd></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <footer style="padding-top: 376.2px;">
-        © 2016 jaflo – All continuations belong to their respective authors.
-    </footer>
+<div id="story">
+	<div class="part">
+		<div class="content">Some common starter.</div>
+		<div class="info">
+			by <a href="#">author</a>
+		</div>
+	</div>
 </div>
-<div id="notice" class="modal" style="display: block;">Remaking this, will look better!</div>
-
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.2/js/tether.min.js"></script>
-<script src="https://loud.red/l3wq5x.txt"></script>
-
-<script>
-    var bottom = true;
-
-    function sample() {
-        return words[parseInt(Math.random() * words.length)];
-    }
-
-    $(".showmore").click(function() {
-        $(this).parents(".more").toggleClass("shown");
-    });
-
-    $("#user").click(function(e) {
-        var show = !$(this).hasClass("dropped");
-        if (show) $("#userdropdown").show().outerWidth();
-        else setTimeout(function() {
-            $("#userdropdown").hide();
-        }, 300);
-        $("#user, #userdropdown").toggleClass("dropped", show);
-        e.preventDefault();
-    });
-
-    $(document).click(function(e) {
-        if ($("#user").hasClass("dropped") && !$(e.target).is("#user") && !$(e.target).is("#userdropdown *")) $("#user").click();
-    }).keypress(function(e) {
-        if (!$(e.target).is("input, textarea")) {
-            if (e.which == 110 || e.which == 117) { // n or u
-                $("#navigation .continue").click();
-            } else if (e.which == 119 || e.which == 105) { // w or i
-                $("#navigation .write").click();
-            } else if (e.which == 106) { // j
-                $("#navigation .jump").click();
-            } else if (e.which == 115 || e.which == 111) { // s or o
-                $("#navigation .star").click();
-            } else if (e.which == 102) { // f
-                $("#navigation .flag").click();
-            } else if (e.which == 100) { // d
-                $(".darktoggle").click();
-            } else if (e.which == 63) { // ?
-                modal($("#shortcuts"), "toggle");
-            } else {
-                return true;
-            }
-            return false;
-        }
-    }).keyup(function(e) {
-        if (e.which == 27) modal($(".modal"), "close");
-    });
-
-    function modal(el, action) {
-        if (action == "toggle") action = el.hasClass("modal") ? "close" : "open";
-        if (action == "close") {
-            el.addClass("hidden out");
-            $("#cover").addClass("hidden");
-            setTimeout(function() {
-                el.removeClass("hidden modal out").hide();
-                $("#cover").remove();
-                $("html, body").css("overflow", "");
-            }, 300);
-        } else { // open
-            el.addClass("hidden modal").show().outerWidth();
-            $("body").append('<div id="cover" class="hidden">');
-            el.removeClass("hidden").focus();
-            $("#cover").click(function() {
-                modal(el, "close");
-            }).outerWidth();
-            $("#cover").removeClass("hidden");
-            $("body").css("overflow", "hidden");
-            $("html").css("overflow-y", "scroll");
-        }
-    }
-
-    $(".darktoggle").click(function(e) {
-        $("html").toggleClass("darkmode");
-        e.preventDefault();
-    });
-
-    $(".options button").click(function() {
-        var chosen = $(this).attr("class").replace("starred", "").replace("flagged", "").trim();
-        if (chosen == "continue") {
-            $("#story .content p").last().append(' <a href="#" class="end">&#9632;');
-            $("#story").append('<div class="content"><p>' + sample());
-            bottom = true;
-            bottomStick();
-        } else if (chosen == "write") {
-            $("#write").show();
-            $("#navigation").hide();
-            $("#write textarea").focus().select();
-        } else if (chosen == "jump") {
-            $("#story .content").last().html('<p>' + sample());
-            bottom = true;
-            bottomStick();
-        } else if (chosen == "star") {
-            $(this).toggleClass("starred");
-            $(this).find("span").text($(this).hasClass("starred") ? "Unstar" : "Star");
-        } else if (chosen == "flag") {
-            $(this).toggleClass("flagged");
-            $(this).find("span").text($(this).hasClass("flagged") ? "Unflag" : "Flag");
-        }
-        if (chosen == "continue" || chosen == "jump") {
-            $("#navigation .starred, #navigation .flagged").click();
-        }
-        $(window).scroll();
-    });
-
-    function bottomStick() {
-        var fromTop = $(window).height() * 0.8;
-        $("footer").css("padding-top", (fromTop - $("#story .content").last().outerHeight() - $("#navigation").outerHeight() - $("footer").height() - 25) + "px");
-        //$("body").stop().animate({scrollTop: $("#story .content p").last().offset().top-$(window).height()+fromTop}, "100", "swing");
-        if (bottom) $(window).scrollTop($("#story .content p").last().offset().top - $(window).height() + fromTop);
-    }
-
-    $(window).scroll(function() {
-        bottom = Math.abs($("#story .content p").last().offset().top - $(window).height() + $(window).height() * 0.8 - $(window).scrollTop()) < 10;
-        var placeholder = $("#navigationplaceholder"),
-            nav = $("#navigation");
-        if (placeholder.offset().top + nav.outerHeight() + 5 > $(this).scrollTop() + $(this).height()) {
-            placeholder.height(nav.addClass("popped").css({
-                width: placeholder.outerWidth() - 2 + "px",
-                marginLeft: -placeholder.outerWidth() / 2 + "px"
-            }).outerHeight());
-        } else {
-            placeholder.height(0);
-            nav.removeClass("popped").css({
-                width: "",
-                marginLeft: ""
-            });
-        }
-    }).scroll().resize(function() {
-        bottomStick();
-    });
-
-    $("#write .cancel").click(function() {
-        $("#write").hide();
-        $("#navigation").show();
-    });
-
-    $("#write textarea").keyup(function(e) {
-        if (e.which == 27) {
-            $(this).parents("form").find(".cancel").click();
-        }
-    });
-
-    modal($("#notice"));
-    //# sourceURL=pen.js
-</script>
-<div id="cover" class=""></div>
+<div id="spacer"></div>
+<div id="navigation">
+	<button class="jump" title="Jump to an alternate continuation">
+		Jump
+		<i class="fa fa-repeat" aria-hidden="true"></i>
+	</button>
+	<button class="continue" title="Show a continuation">
+		Continue
+		<i class="fa fa-angle-double-down" aria-hidden="true"></i>
+	</button>
+	<button class="write" title="Write a continuation">
+		Write
+		<i class="fa fa-pencil" aria-hidden="true"></i>
+	</button>
+</div>
+<div id="actions">
+	<button class="star" title="Mark this continuation as favorite">
+		Star
+		<i class="fa fa-star-o" aria-hidden="true"></i>
+	</button>
+	<!--<button class="comment"><i class="fa fa-comment-o" aria-hidden="true"></i></button>
+<button class="flag"><i class="fa fa-flag-o" aria-hidden="true"></i></button>-->
+	<button class="jump" title="Jump to an alternate continuation">
+		Jump
+		<i class="fa fa-repeat" aria-hidden="true"></i>
+	</button>
+	<button class="continue" title="Show a continuation">Continue</button>
+</div>
+<form action="" id="editor">
+	<label for="" class="overlay">or write your own</label>
+	<textarea name="" id="" cols="30" rows="10"></textarea>
+	<div class="toolbar">
+		<button class="bold" type="button" title="Bolden text">
+			Bold
+			<i class="fa fa-bold" aria-hidden="true"></i>
+		</button>
+		<button class="italic" type="button" title="Italicize text">
+			Italic
+			<i class="fa fa-italic" aria-hidden="true"></i>
+		</button>
+		<!--<button class="fullscreen" type="button">
+			<i class="fa fa-arrows-alt" aria-label="Fullscreen"></i>
+		</button>-->
+		<button type="submit" class="publish" title="Submit this as continuation to the story">Publish</button>
+	</div>
+</form>
+<div id="tester"></div>
