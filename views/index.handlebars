@@ -1,3 +1,4 @@
+<div id="introduction">This is some introductory text that explains the site. You can use the U, I, O, and P buttons on your keyboard to continue, star, write, and jump respectively. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</div>
 <div id="story">
 	<div class="part">
 		<div class="content">Some common starter.</div>
@@ -7,49 +8,59 @@
 	</div>
 </div>
 <div id="spacer"></div>
+<div id="currentinfo">
+	<span class="stars" title="Favorites">
+		<i class="fa fa-star-o" aria-hidden="true"></i>
+		<span>10</span>
+	</span>
+	<span class="possiblities" title="Alternate continuations">
+		<i class="fa fa-clone" aria-hidden="true"></i>
+		<span>4</span>
+	</span>
+	<span class="views" title="Views">
+		<i class="fa fa-eye" aria-hidden="true"></i>
+		<span>578</span>
+	</span>
+	<span class="age" title="Age">
+		<i class="fa fa-clock-o" aria-hidden="true"></i>
+		<span>2 days</span>
+	</span>
+</div>
 <div id="navigation">
-	<button class="jump" title="Jump to an alternate continuation">
+	<button class="jump" title="Alternate continuation">
 		Jump
 		<i class="fa fa-repeat" aria-hidden="true"></i>
 	</button>
-	<button class="continue" title="Show a continuation">
+	<button class="continue">
 		Continue
 		<i class="fa fa-angle-double-down" aria-hidden="true"></i>
 	</button>
-	<button class="write" title="Write a continuation">
+	<button class="write" title="Write">
 		Write
 		<i class="fa fa-pencil" aria-hidden="true"></i>
 	</button>
 </div>
-<div id="actions">
-	<button class="star" title="Mark this continuation as favorite">
-		Star
-		<i class="fa fa-star-o" aria-hidden="true"></i>
+<div id="actions" class="toolbar">
+	<button class="star" title="Favorite">
+		<span>
+			Star
+			<i class="fa fa-star-o" aria-hidden="true"></i>
+		</span>
 	</button>
-	<!--<button class="comment"><i class="fa fa-comment-o" aria-hidden="true"></i></button>
-<button class="flag"><i class="fa fa-flag-o" aria-hidden="true"></i></button>-->
-	<button class="jump" title="Jump to an alternate continuation">
-		Jump
-		<i class="fa fa-repeat" aria-hidden="true"></i>
+	<button class="jump" title="Alternate continuation">
+		<span>
+			Jump
+			<i class="fa fa-repeat" aria-hidden="true"></i>
+		</span>
 	</button>
-	<button class="continue" title="Show a continuation">Continue</button>
+	<button class="main continue"><span>Continue</span></button>
 </div>
 <form action="" id="editor">
 	<label for="" class="overlay">or write your own</label>
 	<textarea name="" id="" cols="30" rows="10"></textarea>
 	<div class="toolbar">
-		<button class="bold" type="button" title="Bolden text">
-			Bold
-			<i class="fa fa-bold" aria-hidden="true"></i>
-		</button>
-		<button class="italic" type="button" title="Italicize text">
-			Italic
-			<i class="fa fa-italic" aria-hidden="true"></i>
-		</button>
-		<!--<button class="fullscreen" type="button">
-			<i class="fa fa-arrows-alt" aria-label="Fullscreen"></i>
-		</button>-->
-		<button type="submit" class="publish" title="Submit this as continuation to the story">Publish</button>
+		<button type="button" class="preview"><span>Preview</span></button>
+		<button type="submit" class="main publish" title="Submit this as continuation to the story"><span>Publish</span></button>
 	</div>
 </form>
 <div id="tester"></div>
