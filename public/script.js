@@ -149,8 +149,8 @@ $("#navigation .write").click(function() {
 });
 
 $("#editor").submit(function() {
-	addNew($("textarea").val());
-	return false;
+	//addNew($("textarea").val());
+	//return false;
 });
 
 $("#editor textarea").on("keyup keydown change", function(e) {
