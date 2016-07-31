@@ -12,6 +12,7 @@ var mongo = require('mongodb');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/Writing-Tree');
 var db = mongoose.connection;
+var User = require('./models/user.js');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
