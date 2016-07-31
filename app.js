@@ -22,11 +22,7 @@ var users = require('./routes/users');
 var client = express();
 
 var handlebars = require('express-handlebars').create({
-<<<<<<< HEAD
-defaultLayout: 'main'
-=======
-    defaultLayout: 'main'
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
+	defaultLayout: 'main'
 });
 
 client.set('views', path.join(__dirname, 'views'));
@@ -42,24 +38,14 @@ client.use(cookieParser('secret'));
 client.set('port', process.env.PORT || 3000);
 
 client.use(lessMiddleware(__dirname + "/public", {
-<<<<<<< HEAD
-compress: true
-=======
     compress: true
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
 }));
 client.use(express.static(__dirname + '/public'));
 
 client.use(session({
-<<<<<<< HEAD
-secret: 'secret',
-saveUninitialized: true,
-resave: true
-=======
     secret: 'secret',
     saveUninitialized: true,
     resave: true
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
 }));
 
 client.use(passport.initialize());
@@ -67,21 +53,6 @@ client.use(passport.session());
 require('./config/auth.js')(passport, LocalStrategy, User);
 
 client.use(expressValidator({
-<<<<<<< HEAD
-errorFormatter: function(param, msg, value) {
-		var namespace = param.split('.')
-		,   root      = namespace.shift()
-		,   formParam = root;
-		while(namespace.length) {
-			formParam += '[' + namespace.shift() + ']';
-		}
-		return {
-			param : formParam,
-			msg	 : msg,
-			value : value
-		};
-	}
-=======
     errorFormatter: function(param, msg, value) {
         var namespace = param.split('.'),
             root = namespace.shift(),
@@ -95,7 +66,6 @@ errorFormatter: function(param, msg, value) {
             value: value
         };
     }
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
 }));
 
 client.use(flash());
@@ -117,13 +87,8 @@ client.listen(client.get('port'), function() {
 })
 
 client.get('/', function(req, res) {
-<<<<<<< HEAD
 	res.render("index");
 	//should return HTML
-=======
-    res.render("index");
-    //should return HTML
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
 });
 
 client.get('/placeholder-shortID', function(req, res) {
@@ -195,12 +160,8 @@ client.post('/user/username/preferences', function(req, res) {
 
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/login', function(req, res) {
-<<<<<<< HEAD
 	//should return HTML
 	res.render("login", {title: "Log In"});
-=======
-    //should return HTML
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
 });
 
 client.post('/login', passport.authenticate('local-login', {
@@ -216,13 +177,6 @@ client.get('/signup', function(req, res) {
         title: "Sign up"
     });
 });
-
-<<<<<<< HEAD
-=======
-client.post('/signup', function(req, res) {
-    res.redirect("/");
-});
->>>>>>> 3739f7bf38c9b049784f0d13134cc319ec002a42
 
 client.post('/signup', passport.authenticate('local-signup', {
 	successRedirect : '/', // redirect to the secure profile section
