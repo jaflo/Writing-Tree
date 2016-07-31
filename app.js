@@ -137,7 +137,7 @@ client.get('/login', function(req, res) {
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/signup', function(req, res) {
 	//should return HTML
-	res.render("signup");
+	res.render("signup", {title: "Sign up"});
 });
 
 client.post('/signup', function(req, res) {
