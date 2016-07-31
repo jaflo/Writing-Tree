@@ -10,6 +10,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
+
 mongoose.connect('mongodb://localhost/Writing-Tree');
 var db = mongoose.connection;
 var User = require('./models/user.js');
@@ -20,7 +21,7 @@ var users = require('./routes/users');
 var client = express();
 
 var handlebars = require('express-handlebars').create({
-	defaultLayout: 'main'
+defaultLayout: 'main'
 });
 
 client.set('views', path.join(__dirname, 'views'));
@@ -34,21 +35,22 @@ client.use(cookieParser('secret'));
 client.set('port', process.env.PORT || 3000);
 
 client.use(lessMiddleware(__dirname + "/public", {
-	compress: true
+compress: true
 }));
 client.use(express.static(__dirname + '/public'));
 
 client.use(session({
-	secret: 'secret',
-	saveUninitialized: true,
-	resave: true
+secret: 'secret',
+saveUninitialized: true,
+resave: true
 }));
 
 client.use(passport.initialize());
 client.use(passport.session());
+require('./config/auth.js')(passport, LocalStrategy, User);
 
 client.use(expressValidator({
-	errorFormatter: function(param, msg, value) {
+errorFormatter: function(param, msg, value) {
 		var namespace = param.split('.')
 		,   root      = namespace.shift()
 		,   formParam = root;
@@ -72,11 +74,17 @@ client.use(function (req, res, next){
 	next();
 })
 
+User.find(function(err, stories) {
+	if (err) return console.error(err);
+	console.dir(stories);
+});
+
 client.listen(client.get('port'), function() {
 	console.log('Express has started on http://localhost:' + client.get('port') + '; press Ctrl-C to terminate.');
 })
 
 client.get('/', function(req, res) {
+	console.log(req.user);
 	res.render("index");
 	//should return HTML
 });
@@ -132,7 +140,14 @@ client.post('/user/username/preferences', function(req, res) {
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/login', function(req, res) {
 	//should return HTML
+	res.render("login", {title: "Log In"});
 });
+
+client.post('/login', passport.authenticate('local-login', {
+	successRedirect : '/', // redirect to the secure profile section
+	failureRedirect : '/login', // redirect back to the signup page if there is an error
+	failureFlash : true // allow flash messages
+}));
 
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/signup', function(req, res) {
@@ -140,10 +155,17 @@ client.get('/signup', function(req, res) {
 	res.render("signup", {title: "Sign up"});
 });
 
-client.post('/signup', function(req, res) {
-	res.redirect("/");
-});
 
+client.post('/signup', passport.authenticate('local-signup', {
+	successRedirect : '/', // redirect to the secure profile section
+	failureRedirect : '/signup', // redirect back to the signup page if there is an error
+	failureFlash : true // allow flash messages
+}));
+
+client.get('/logout', function(req, res) {
+	req.logout();
+	res.redirect('/');
+});
 
 client.use(function(req, res) {
 	res.status(404);
