@@ -118,7 +118,6 @@ client.listen(client.get('port'), function() {
 
 client.get('/', function(req, res) {
 <<<<<<< HEAD
-	console.log(req.user);
 	res.render("index");
 	//should return HTML
 =======

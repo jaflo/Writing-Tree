@@ -79,7 +79,6 @@ module.exports = function(passport, LocalStrategy, User) {
 		User.findOne({ 'username' :  username }, function(err, user) {
 			// if there are any errors, return the error before anything else
 			if (err) { return done(err); }
-			console.log(user);
 			// if no user is found, return the message
 			if (!user) {
 				return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
