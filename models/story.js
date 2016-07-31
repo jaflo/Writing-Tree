@@ -12,14 +12,14 @@ var storySchema = mongoose.Schema({
         type: String,
         required: true,
         index: {
-            unique: true
+            unique: false
         }
     },
     author: {
         type: String,
         required: true,
         index: {
-            unique: true
+            unique: false
         }
     },
 
@@ -27,7 +27,7 @@ var storySchema = mongoose.Schema({
         type: String,
         required: true,
         index: {
-            unique: true
+            unique: false
         }
     },
 
