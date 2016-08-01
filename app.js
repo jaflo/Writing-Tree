@@ -87,8 +87,9 @@ client.listen(client.get('port'), function() {
 })
 
 client.get('/', function(req, res) {
-	res.render("index");
-	console.log(req.user);
+	res.render("index", {
+		user: req.user
+	});
 	//should return HTML
 });
 
