@@ -87,8 +87,9 @@ client.listen(client.get('port'), function() {
 })
 
 client.get('/', function(req, res) {
-	res.render("index");
-	console.log(req.user);
+	res.render("index", {
+		user: req.user
+	});
 	//should return HTML
 });
 
@@ -176,6 +177,7 @@ client.post('/login', passport.authenticate('local-login', {
 client.get('/signup', function(req, res) {
 	//should return HTML
 	res.render("signup", {
+		user: req.user,
 		title: "Sign up"
 	});
 });
@@ -193,5 +195,8 @@ client.get('/logout', function(req, res) {
 
 client.use(function(req, res) {
 	res.status(404);
-	res.render('404');
+	res.render('404', {
+		user: req.user,
+		title: "Page not found"
+	});
 });

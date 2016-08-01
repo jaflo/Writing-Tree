@@ -8,13 +8,22 @@
 <body>
 	<header>
 		<div>
-			<a href="/" id="user" title="That's you!">jaflo</a>
+			{{#if user}}
+				 <a href="/user/{{user.username}}" id="user" title="That's you!">{{user.username}}</a>
+			{{else}}
+				<a href="/login" id="user" title="Don't be a stranger!">guest</a>
+			{{/if}}
 			<h1><a href="/" title="Return to home page">Website</a></h1>
 			<div id="userdropdown">
 				<a href="" class="darktoggle">Dark mode <div></div></a>
-				<a href="">Favorites</a>
-				<a href="">My continuations</a>
-				<a href="">Log out</a>
+				{{#if user}}
+					<a href="">Favorites</a>
+					<a href="">My continuations</a>
+					<a href="">Log out</a>
+				{{else}}
+					<a href="/login">Log in</a>
+					<a href="/signup">Sign up</a>
+				{{/if}}
 			</div>
 		</div>
 	</header>
