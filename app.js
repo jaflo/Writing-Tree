@@ -162,7 +162,8 @@ client.post('/user/username/preferences', function(req, res) {
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/login', function(req, res) {
 	//should return HTML
-	res.render("login", {title: "Log In"});
+	if(!req.user) { res.render("login", {title: "Log In"}); 
+	} else { res.redirect('/'); }
 });
 
 client.post('/login', passport.authenticate('local-login', {
