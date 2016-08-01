@@ -53,10 +53,10 @@ client.use(passport.session());
 require('./config/auth.js')(passport, LocalStrategy, User);
 
 client.use(expressValidator({
-	errorFormatter: function(param, msg, value) {
+errorFormatter: function(param, msg, value) {
 		var namespace = param.split('.'),
-			root = namespace.shift(),
-			formParam = root;
+		root = namespace.shift(),
+		formParam = root;
 		while (namespace.length) {
 			formParam += '[' + namespace.shift() + ']';
 		}
@@ -106,8 +106,21 @@ client.post('/placeholder-shortID/jump', function(req, res) {
 	//should return JSON
 });
 
-client.post('/placeholder-shortID/favorite', function(req, res) {
-	//should return JSON(?)
+client.post('/star', function(req, res) {
+	var temp_err = "";
+	Contact.findByIdAndUpdate(
+	{username: req.user.username},
+	{$push: { favs: req.body.id }},
+	{safe: true, upsert: true},
+	function(err, model) {
+		temp_err += err+" "; // [TODO] consider array
+	}
+	);
+	if(req.body.json) { res.json({ status: temp_err||"success" });
+	} else { 
+		res.redirect("/" + req.params.id); 
+		if (temp_err) res.flash("error_text", "success");
+	}
 });
 
 client.post('/placeholder-shortID/flag', function(req, res) {
@@ -131,12 +144,12 @@ client.post('/create', function(req, res) {
 				attemptCreation(randomString());
 			} else {
 				var test = new Story({
-					shortID: shortID,
-					parent: req.body.parent, // [TODO] check if exists
-					author: req.user.id,
-					content: req.body.content, // [TODO] validate
-					createdat: Date.now(),
-							changedat: Date.now()
+				shortID: shortID,
+				parent: req.body.parent, // [TODO] check if exists
+				author: req.user.id,
+				content: req.body.content, // [TODO] validate
+				createdat: Date.now(),
+				changedat: Date.now()
 				});
 				console.log(test);
 				test.save(function(err, test) {
@@ -155,7 +168,7 @@ client.post('/create', function(req, res) {
 	attemptCreation(randomString());
 });
 
-client.get('/user/username/favorites', function(req, res) {
+client.get('/user/username/starred', function(req, res) {
 	//should return HTML
 });
 
