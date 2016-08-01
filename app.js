@@ -4,8 +4,8 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var lessMiddleware = require('less-middleware');
 var expressValidator = require('express-validator');
-var flash = require('express-session');
-var session = require('connect-flash');
+var session = require('express-session');
+var flash = require('connect-flash');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var mongo = require('mongodb');
@@ -68,11 +68,7 @@ client.use(expressValidator({
 	}
 }));
 
-client.use(flash({
-	resave: true,
-	saveUninitialized: false,
-	secret: "random string that should be changed"
-}));
+client.use(flash());
 
 client.use(function(req, res, next) {
 	res.locals.success_msg = req.flash('success_msg');
@@ -83,7 +79,7 @@ client.use(function(req, res, next) {
 
 User.find(function(err, stories) {
 	if (err) return console.error(err);
-	console.dir(stories);
+	//console.dir(stories);
 });
 
 client.listen(client.get('port'), function() {
@@ -92,6 +88,7 @@ client.listen(client.get('port'), function() {
 
 client.get('/', function(req, res) {
 	res.render("index");
+	console.log(req.user);
 	//should return HTML
 });
 
