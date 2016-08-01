@@ -127,7 +127,7 @@ client.post('/create', function(req, res) {
 		console.log(shortID);
 		Story.findOne({ 'shortID': shortID }, 'author', function(err, story) {
 			if (err) return handleError(err); // [TODO] handleError
-			if (story) {
+			if (story) { // story with that ID already exists, so new ID
 				attemptCreation(randomString());
 			} else {
 				var test = new Story({

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var storySchema = mongoose.Schema({
-    shortid: {
+    shortID: {
         type: String,
         required: true,
         index: {
