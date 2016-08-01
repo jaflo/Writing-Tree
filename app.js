@@ -88,7 +88,8 @@ client.listen(client.get('port'), function() {
 
 client.get('/', function(req, res) {
 	res.render("index", {
-		user: req.user
+		user: req.user,
+		bodyclass: "longer"
 	});
 	//should return HTML
 });
@@ -122,26 +123,36 @@ client.post('/placeholder-shortID/remove', function(req, res) {
 });
 
 client.post('/create', function(req, res) {
-	var test = new Story({
-		shortID: "ABDSLDWERP",			//#TODO: Create true random alphanumeric key
-		parent: "BCDEFGHIJKL",
-		author: "dummyAcct",
-		content: req.body.content,
-		createdat: Date.now(),
-				changedat: Date.now()
-	});
-	console.log(test);
-	test.save(function(err, test) {
-		if (err) return console.error(err);
-		console.dir(test);
-	});
-	console.log("Save successful");
-	Story.find(function(err, stories) {
-		if (err) return console.error(err);
-		console.dir(stories);
-	});
-
-	res.redirect('/');
+	function attemptCreation(shortID) {
+		console.log(shortID);
+		Story.findOne({ 'shortID': shortID }, 'author', function(err, story) {
+			if (err) return handleError(err); // [TODO] handleError
+			if (story) {
+				attemptCreation(randomString());
+			} else {
+				var test = new Story({
+					shortID: shortID,
+					parent: req.body.parent, // [TODO] check if exists
+					author: req.user.id,
+					content: req.body.content, // [TODO] validate
+					createdat: Date.now(),
+							changedat: Date.now()
+				});
+				console.log(test);
+				test.save(function(err, test) {
+					if (err) return console.error(err);
+					console.dir(test);
+				});
+				console.log("Save successful");
+				Story.find(function(err, stories) {
+					if (err) return console.error(err);
+					console.dir(stories);
+				});
+				res.redirect('/');
+			}
+		});
+	}
+	attemptCreation(randomString());
 });
 
 client.get('/user/username/favorites', function(req, res) {
@@ -163,7 +174,7 @@ client.post('/user/username/preferences', function(req, res) {
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/login', function(req, res) {
 	//should return HTML
-	if(!req.user) { res.render("login", {title: "Log In"}); 
+	if(!req.user) { res.render("login", {title: "Log In"});
 	} else { res.redirect('/'); }
 });
 
@@ -200,3 +211,7 @@ client.use(function(req, res) {
 		title: "Page not found"
 	});
 });
+
+function randomString(length) {
+	return Math.random().toString(36).substr(2, 2+(length||5));
+}

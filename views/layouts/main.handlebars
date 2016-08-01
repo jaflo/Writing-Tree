@@ -5,7 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="/styles.css">
 	<link rel="stylesheet" type="text/css" href="//opensource.keycdn.com/fontawesome/4.6.3/font-awesome.min.css">
 </head>
-<body>
+<body class="{{#if user}}loggedin{{/if}}{{#if bodyclass}} {{bodyclass}}{{/if}}">
 	<header>
 		<div>
 			{{#if user}}

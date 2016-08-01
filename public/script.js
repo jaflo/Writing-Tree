@@ -161,10 +161,10 @@ $("#editor textarea").on("keyup keydown change", function(e) {
 	$("#editor").toggleClass("hastext", $(this).val().length > 0);
 });
 
-/*$(".blocky input").on("keyup keydown change", function() {
+$(".blocky input").on("keyup keydown change", function() {
 	$(this).toggleClass("hastext", $(this).val().length > 0);
 	$(this).prev("label").toggleClass("hastext", $(this).val().length > 0);
-});*/
+});
 
 function modal(el, action) {
 	if (action == "toggle") action = el.hasClass("modal") ? "close" : "open";
