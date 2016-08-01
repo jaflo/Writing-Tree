@@ -33,16 +33,25 @@ body, button, input, textarea {
 }
 
 button, input, textarea {
-	border: 1px solid @bordercolor;
 	.border-radius;
 	padding: @pad;
 	outline: none;
 	.transition;
+	border: 1px solid rgba(0,0,0,0.2);
 	&:hover {
 		border-color: rgba(0,0,0,0.4);
 	}
 	&:focus {
 		border-color: rgba(0,0,0,0.8);
+	}
+	html.darkmode & {
+		border-color: rgba(255,255,255,0.2);
+		&:hover {
+			border-color: rgba(255,255,255,0.4);
+		}
+		&:focus {
+			border-color: rgba(255,255,255,0.8);
+		}
 	}
 }
 
@@ -583,22 +592,40 @@ header {
 	}
 }
 
+label {
+	display: block;
+}
+
 form.blocky {
 	max-width: 380px;
 	margin: auto;
 	h2 {
 		margin: 0 0 0.2em 0;
 	}
-	label, input, small {
+	input, small {
 		display: block;
 	}
 	label {
-		margin-bottom: 0.1em;
+		margin-top: -0.3em;
+		padding: @pad 0 0 @pad+1;
+		.transition;
+		&.hastext {
+			padding: 0;
+			margin: 0 0 0.1em 0;
+		}
 	}
 	input, button {
 		width: 100%;
 		box-sizing: border-box;
 		margin-bottom: 0.3em;
+	}
+	input {
+		margin-top: -@pad+-1.1*@fontsize;
+		padding-top: @pad+@fontsize;
+		&.hastext {
+			padding: @pad;
+			margin: 0 0 0.3em 0;
+		}
 	}
 	small {
 		text-align: center;

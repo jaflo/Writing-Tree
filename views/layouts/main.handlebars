@@ -15,11 +15,11 @@
 			{{/if}}
 			<h1><a href="/" title="Return to home page">Website</a></h1>
 			<div id="userdropdown">
-				<a href="" class="darktoggle">Dark mode <div></div></a>
+				<a href="#" class="darktoggle">Dark mode <div></div></a>
 				{{#if user}}
-					<a href="">Favorites</a>
-					<a href="">My continuations</a>
-					<a href="">Log out</a>
+					<a href="/favorites">Favorites</a>
+					<a href="/mine">My continuations</a>
+					<a href="/logout">Log out</a>
 				{{else}}
 					<a href="/login">Log in</a>
 					<a href="/signup">Sign up</a>
@@ -27,8 +27,8 @@
 			</div>
 		</div>
 	</header>
-	<form action="" id="search">
-		<input type="text" placeholder="Search" />
+	<form action="/search" id="search">
+		<input type="text" name="q" placeholder="Search" />
 	</form>
 	<main>
 		{{{body}}}
@@ -39,16 +39,6 @@
 	</footer>
 	<div id="cover" class="hidden"></div>
 	<div id="debug"></div>
-	<div id="login">
-		<h2>Log in</h2>
-		<form action="">
-			<label for="login_username">Username</label>
-			<input type="text" id="login_username" />
-			<label for="login_password">Password</label>
-			<input type="password" id="login_password" />
-			<button type="submit" class="primary">Log in</button>
-		</form>
-	</div>
 	<script src="//code.jquery.com/jquery-latest.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 	<script src="/script.js"></script>
