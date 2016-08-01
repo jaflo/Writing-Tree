@@ -163,7 +163,10 @@ client.post('/user/username/preferences', function(req, res) {
 //Uses multiple kinds of requests, 'get' is just a placeholder
 client.get('/login', function(req, res) {
 	//should return HTML
-	res.render("login", {title: "Log In"});
+	res.render("login", {
+		user: req.user,
+		title: "Log In"
+	});
 });
 
 client.post('/login', passport.authenticate('local-login', {
@@ -176,6 +179,7 @@ client.post('/login', passport.authenticate('local-login', {
 client.get('/signup', function(req, res) {
 	//should return HTML
 	res.render("signup", {
+		user: req.user,
 		title: "Sign up"
 	});
 });
@@ -193,5 +197,8 @@ client.get('/logout', function(req, res) {
 
 client.use(function(req, res) {
 	res.status(404);
-	res.render('404');
+	res.render('404', {
+		user: req.user,
+		title: "Page not found"
+	});
 });
