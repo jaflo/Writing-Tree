@@ -15,6 +15,7 @@ mongoose.connect('mongodb://localhost/Writing-Tree');
 var db = mongoose.connection;
 var User = require('./models/user.js');
 var Story = require('./models/story.js');
+var Flag = require('./models/flag.js');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -108,7 +109,7 @@ client.post('/placeholder-shortID/jump', function(req, res) {
 
 client.post('/star', function(req, res) {
 	var temp_err = "";
-	Contact.findByIdAndUpdate(
+	User.update(
 	{username: req.user.username},
 	{$push: { favs: req.body.id }},
 	{safe: true, upsert: true},
@@ -123,8 +124,34 @@ client.post('/star', function(req, res) {
 	}
 });
 
-client.post('/placeholder-shortID/flag', function(req, res) {
-	//should return JSON(?)
+client.post('/unstar', function(req, res) {
+	var temp_err = "";
+	User.update(
+	{username: req.user.username},
+	{$pull: { favs: req.body.id }},
+	{safe: true, upsert: true},
+	function(err, model) {
+		temp_err += err+" "; // [TODO] consider array
+	}
+	);
+	if(req.body.json) { res.json({ status: temp_err||"success" });
+	} else { 
+		res.redirect("/" + req.params.id); 
+		if (temp_err) res.flash("error_text", "success");
+	}
+});
+
+
+client.post('/flag', function(req, res) {
+	var newFlag = new Flag({
+		id: req.body.id,
+		flagger: req.user.username,
+		flagged: req.body.flagged,
+		reason: req.body.reason,
+		createdat: Date.now(),
+		status: "unresolved"
+	});
+	newFlage.save(function(err){ if(err) throw err; });
 });
 
 client.post('/placeholder-shortID/edit', function(req, res) {
@@ -165,21 +192,12 @@ client.post('/create', function(req, res) {
 				attemptCreation(randomString());
 			} else {
 				var test = new Story({
-<<<<<<< HEAD
-					shortID: shortID,
-					parent: req.body.parent, // [TODO] check if exists
-					author: req.user.id, // [TODO] check if logged in
-					content: req.body.content,
-					createdat: Date.now(),
-							changedat: Date.now()
-=======
 				shortID: shortID,
 				parent: req.body.parent, // [TODO] check if exists
 				author: req.user.id,
 				content: req.body.content, // [TODO] validate
 				createdat: Date.now(),
 				changedat: Date.now()
->>>>>>> 829d79dd21f791006e8861cb6ccc33340f32b4e0
 				});
 				console.log(test);
 				test.save(function(err, test) {
