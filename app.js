@@ -118,8 +118,8 @@ client.post('/star', function(req, res) {
 	}
 	);
 	if(req.body.json) { res.json({ status: temp_err||"success" });
-	} else { 
-		res.redirect("/" + req.params.id); 
+	} else {
+		res.redirect("/" + req.params.id);
 		if (temp_err) res.flash("error_text", "success");
 	}
 });
