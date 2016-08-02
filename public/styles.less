@@ -298,6 +298,19 @@ header {
 	}
 }
 
+.alert {
+	padding: @pad;
+	color: @almostwhite;
+	.border-radius;
+	margin-bottom: @pad;
+	&.error {
+		background: red;
+	}
+	&.success {
+		background: green;
+	}
+}
+
 #introduction {
 	margin-bottom: 1em;
 	padding-bottom: 1em;
@@ -503,7 +516,7 @@ header {
 		opacity: 0.4;
 		text-align: center;
 		font-size: 20px;
-		z-index: -1;
+		pointer-events: none;
 		.transition;
 	}
 	&.hastext .overlay {

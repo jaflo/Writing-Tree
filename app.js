@@ -60,22 +60,23 @@ client.use(expressValidator({
 		while (namespace.length) {
 			formParam += '[' + namespace.shift() + ']';
 		}
-		return {
+		return msg+" ";
+		/*return {
 			param: formParam,
 			msg: msg,
 			value: value
-		};
+		};*/
 	}
 }));
 
 client.use(flash());
 
 client.use(function(req, res, next) {
-	res.locals.success_msg = req.flash('success_msg');
-	res.locals.error_msg = req.flash('error_msg');
+	res.locals.success = req.flash('success');
 	res.locals.error = req.flash('error');
+	res.locals.user = req.user;
 	next();
-})
+});
 
 User.find(function(err, stories) {
 	if (err) return console.error(err);
@@ -88,7 +89,6 @@ client.listen(client.get('port'), function() {
 
 client.get('/', function(req, res) {
 	res.render("index", {
-		user: req.user,
 		bodyclass: "longer"
 	});
 	//should return HTML
@@ -123,6 +123,27 @@ client.post('/placeholder-shortID/remove', function(req, res) {
 });
 
 client.post('/create', function(req, res) {
+	if (!req.user) {
+		req.flash("error", "You need to be logged in.");
+		res.redirect(req.header('Referer') || '/');
+	}
+	req.assert('parent', 'Parent is required.').notEmpty();
+	req.assert('content', 'Some text is required.').notEmpty();
+	var errors = req.validationErrors();
+	if (errors) {
+		if (req.body.json) {
+			res.json({
+				status: "failed",
+				message: errors
+			});
+		} else {
+			req.flash("error", errors);
+			res.redirect(req.header('Referer') || '/');
+		}
+		return;
+	} else {
+		attemptCreation(randomString());
+	}
 	function attemptCreation(shortID) {
 		console.log(shortID);
 		Story.findOne({ 'shortID': shortID }, 'author', function(err, story) {
@@ -133,8 +154,8 @@ client.post('/create', function(req, res) {
 				var test = new Story({
 					shortID: shortID,
 					parent: req.body.parent, // [TODO] check if exists
-					author: req.user.id,
-					content: req.body.content, // [TODO] validate
+					author: req.user.id, // [TODO] check if logged in
+					content: req.body.content,
 					createdat: Date.now(),
 							changedat: Date.now()
 				});
@@ -148,11 +169,18 @@ client.post('/create', function(req, res) {
 					if (err) return console.error(err);
 					console.dir(stories);
 				});
-				res.redirect('/');
+				if (req.body.json) {
+					res.json({
+						status: "success",
+						message: "Save successful!"
+					});
+				} else {
+					req.flash("success", "Save successful!");
+					res.redirect('/'+shortID);
+				}
 			}
 		});
 	}
-	attemptCreation(randomString());
 });
 
 client.get('/user/username/favorites', function(req, res) {
@@ -188,7 +216,6 @@ client.post('/login', passport.authenticate('local-login', {
 client.get('/signup', function(req, res) {
 	//should return HTML
 	res.render("signup", {
-		user: req.user,
 		title: "Sign up"
 	});
 });
@@ -207,11 +234,10 @@ client.get('/logout', function(req, res) {
 client.use(function(req, res) {
 	res.status(404);
 	res.render('404', {
-		user: req.user,
 		title: "Page not found"
 	});
 });
 
 function randomString(length) {
-	return Math.random().toString(36).substr(2, 2+(length||5));
+	return Math.random().toString(36).substr(2, length || 5);
 }

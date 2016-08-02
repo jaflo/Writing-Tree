@@ -31,6 +31,12 @@
 		<input type="text" name="q" placeholder="Search" />
 	</form>
 	<main>
+		{{#if success}}
+			<div class="alert success">{{success}}</div>
+		{{/if}}
+		{{#if error}}
+			<div class="alert error">{{error}}</div>
+		{{/if}}
 		{{{body}}}
 	</main>
 	<footer>

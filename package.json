@@ -17,7 +17,7 @@
     "express-handlebars": "*",
     "express-messages": "*",
     "express-session": "*",
-    "express-validator": "*",
+    "express-validator": "^2.20.8",
     "less-middleware": "^2.2.0",
     "mongodb": "*",
     "mongoose": "*",
