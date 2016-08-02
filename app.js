@@ -117,8 +117,8 @@ client.post('/star', function(req, res) {
 	}
 	);
 	if(req.body.json) { res.json({ status: temp_err||"success" });
-	} else { 
-		res.redirect("/" + req.params.id); 
+	} else {
+		res.redirect("/" + req.params.id);
 		if (temp_err) res.flash("error_text", "success");
 	}
 });
@@ -165,21 +165,12 @@ client.post('/create', function(req, res) {
 				attemptCreation(randomString());
 			} else {
 				var test = new Story({
-<<<<<<< HEAD
 					shortID: shortID,
 					parent: req.body.parent, // [TODO] check if exists
-					author: req.user.id, // [TODO] check if logged in
-					content: req.body.content,
+					author: req.user.id,
+					content: req.body.content, // [TODO] validate
 					createdat: Date.now(),
-							changedat: Date.now()
-=======
-				shortID: shortID,
-				parent: req.body.parent, // [TODO] check if exists
-				author: req.user.id,
-				content: req.body.content, // [TODO] validate
-				createdat: Date.now(),
-				changedat: Date.now()
->>>>>>> 829d79dd21f791006e8861cb6ccc33340f32b4e0
+					changedat: Date.now()
 				});
 				console.log(test);
 				test.save(function(err, test) {
