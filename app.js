@@ -117,28 +117,33 @@ client.get('/', function(req, res) {
 	//should return HTML
 });
 
-/*********************************************************************************** WIP by Edan Meyer */
+function getParentStory(newStory, storyArray, callback, currentID, res){
+	if(newStory.shortID != '0'){
+		storyArray.unshift(newStory);
+		mongoose.model('Story').findOne({ shortID: newStory.parent }, function(err, newParentStory){
+			if(!err){
+				callback(newParentStory, storyArray, callback, currentID, res);
+			}else{
+				console.log('ERROR: Parent story could not be found');
+			}
+		});
+	}else{
+		storyArray.unshift(newStory);
+		res.render('layouts/story', {story: storyArray, currentID: currentID});
+	}
+}
+
 client.get('/story/:id', function(req, res) {
 	mongoose.model('Story').findOne({ shortID: req.params.id }, function(err, story){
 		if(!err && story !== null){
 			var stories = [];
 			var newStory = story;
-			console.log('NEW STORY -----------------------------------------------------------------------' + newStory);
-			while(newStory.parent != '0'){
-				stories.push(newStory);
-				mongoose.model('Story').findOne({ parent: newStory.parent }, function(err, story){
-					newStory = story;
-				});
-			}
-			stories.push(newStory);
-			console.log(stories);
-			res.render('layouts/story', {story: stories});
+
+			getParentStory(newStory, stories, getParentStory, story.shortID, res);
 		}else{
 			console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
 		}
 	});
-
-	//should return HTML
 });
 
 client.post('/placeholder-shortID/next', function(req, res) {
@@ -241,7 +246,7 @@ client.post('/create', function(req, res) {
 				createdat: Date.now(),
 				changedat: Date.now()
 				});
-				console.log(test);
+				//console.log(test);
 				test.save(function(err, test) {
 					if (err) return console.error(err);
 					console.dir(test);
