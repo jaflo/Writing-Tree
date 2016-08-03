@@ -9,7 +9,8 @@ var userSchema = mongoose.Schema({
 	password: { type: String, required: true, index: { unique: true } },
 	createdat: { type: Date, required: true, default: Date.now() },
 	changedat: { type: Date },
-	starred: [{ type: String }]
+	starred: [{ type: String }],
+	preferences: String
 });
 
 // methods ======================
