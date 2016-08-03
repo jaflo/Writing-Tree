@@ -120,7 +120,7 @@ client.post('/star', function(req, res) {
 	if(req.body.json) { res.json({ status: temp_err||"success" });
 	} else {
 		res.redirect("/" + req.params.id);
-		if (temp_err) res.flash("error_text", "success");
+		if (temp_err) req.flash("error", "success");
 	}
 });
 
@@ -137,7 +137,7 @@ client.post('/unstar', function(req, res) {
 	if(req.body.json) { res.json({ status: temp_err||"success" });
 	} else { 
 		res.redirect("/" + req.params.id); 
-		if (temp_err) res.flash("error_text", "success");
+		if (temp_err) req.flash("error", "success");
 	}
 });
 
@@ -260,11 +260,17 @@ client.get('/signup', function(req, res) {
 	});
 });
 
-client.post('/signup', passport.authenticate('local-signup', {
-	successRedirect : '/', // redirect to the secure profile section
-	failureRedirect : '/signup', // redirect back to the signup page if there is an error
-	failureFlash : true // allow flash messages
-}));
+client.post('/signup', function(req, res) {
+	if(req.body.reentered != req.body.password) {
+		req.flash("error", "Unable to sign in: Passwords do not match"); 
+		res.redirect('/signup');
+	}
+	passport.authenticate('local-signup', {
+		successRedirect : '/', // redirect to the secure profile section
+		failureRedirect : '/signup', // redirect back to the signup page if there is an error
+		failureFlash : true // allow flash messages
+	});
+});
 
 client.get('/logout', function(req, res) {
 	req.logout();
