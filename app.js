@@ -54,7 +54,7 @@ client.use(passport.session());
 require('./config/auth.js')(passport, LocalStrategy, User);
 
 client.use(expressValidator({
-errorFormatter: function(param, msg, value) {
+	errorFormatter: function(param, msg, value) {
 		var namespace = param.split('.'),
 		root = namespace.shift(),
 		formParam = root;
@@ -208,13 +208,7 @@ client.post('/placeholder-shortID/remove', function(req, res) {
 
 });
 
-client.post('/create', function(req, res) {
-	if (req.user == undefined) {
-		req.flash("error", "You need to be logged in.");
-		res.redirect("back");
-	}
-	req.assert('parent', 'Parent is required.').notEmpty();
-	req.assert('content', 'Some text is required.').notEmpty();
+function validateFields(req, res, callback) {
 	var errors = req.validationErrors();
 	if (errors) {
 		if (req.body.json) {
@@ -226,10 +220,34 @@ client.post('/create', function(req, res) {
 			req.flash("error", errors);
 			res.redirect("back");
 		}
-		return;
 	} else {
-		attemptCreation(randomString());
+		callback();
 	}
+}
+
+function completeRequest(req, res, success, redirect) {
+	if (req.body.json) {
+		res.json({
+			status: "success",
+			message: success
+		});
+	} else {
+		req.flash("success", success);
+		res.redirect(redirect || "back");
+	}
+}
+
+client.post('/create', function(req, res) {
+	if (!req.user) {
+		req.flash("error", "You need to be logged in.");
+		res.redirect("back");
+		return;
+	}
+	req.assert('parent', 'Parent is required.').notEmpty();
+	req.assert('content', 'Some text is required.').notEmpty();
+	validateFields(req, res, function() {
+		attemptCreation(randomString());
+	});
 	function attemptCreation(shortID) {
 		console.log(shortID);
 		Story.findOne({ 'shortID': shortID }, 'author', function(err, story) {
@@ -248,22 +266,14 @@ client.post('/create', function(req, res) {
 				console.log(test);
 				test.save(function(err, test) {
 					if (err) return console.error(err);
-					console.dir(test);
+					//console.dir(test);
 				});
 				console.log("Save successful");
 				Story.find(function(err, stories) {
 					if (err) return console.error(err);
-					console.dir(stories);
+					//console.dir(stories);
 				});
-				if (req.body.json) {
-					res.json({
-						status: "success",
-						message: "Save successful!"
-					});
-				} else {
-					req.flash("success", "Save successful!");
-					res.redirect('/story/'+shortID);
-				}
+				completeRequest(req, res, "Save successful!", '/story/'+shortID);
 			}
 		});
 	}
@@ -308,7 +318,7 @@ client.get('/signup', function(req, res) {
 
 client.post('/signup', function(req, res) {
 	if(req.body.reentered != req.body.password) {
-		req.flash("error", "Unable to sign in: Passwords do not match"); 
+		req.flash("error", "Unable to sign in: Passwords do not match");
 		res.redirect('/signup');
 	}
 	passport.authenticate('local-signup', {
