@@ -76,12 +76,35 @@ client.use(function(req, res, next) {
 	res.locals.success = req.flash('success');
 	res.locals.error = req.flash('error');
 	res.locals.user = req.user;
+	res.locals.url = "http://localhost:3000"+req.originalUrl;
 	next();
 });
 
 User.find(function(err, stories) {
 	if (err) return console.error(err);
 	//console.dir(stories);
+});
+
+Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
+
+//If the database is new and their are no stories, create the first one
+Story.collection.count({}, function(err, count){
+	if(count == 0){
+		var parentStory = new Story({
+			shortID: '0',
+			parent: '0', // [TODO] check if exists
+			author: 'Your homedog, ejmejm',
+			content: 'This is the parent story of all parents.', // [TODO] validate
+			createdat: Date.now(),
+			changedat: Date.now()
+		});
+
+		parentStory.save(function(err, parentStory) {
+			if (err) return console.error(err);
+			console.dir(parentStory);
+		});
+		console.log("Save successful");
+	}
 });
 
 client.listen(client.get('port'), function() {
@@ -95,7 +118,30 @@ client.get('/', function(req, res) {
 	//should return HTML
 });
 
-client.get('/placeholder-shortID', function(req, res) {
+/*********************************************************************************** WIP by Edan Meyer */
+client.get('/story/:id', function(req, res) {
+	mongoose.model('Story').findOne({ shortID: req.params.id }, function(err, story){
+		if(!err && story !== null){
+			var stories = [];
+			var newStory = story;
+			console.log('NEW STORY -----------------------------------------------------------------------' + newStory);
+			while(newStory.parent != '0'){
+				stories.push(newStory);
+				mongoose.model('Story').findOne({ parent: newStory.parent }, function(err, story){
+					newStory = story;
+				});
+			}
+			stories.push(newStory);
+			console.log(stories);
+			res.render('index', {
+				bodyclass: "longer",
+				story: stories
+			});
+		}else{
+			console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
+		}
+	});
+
 	//should return HTML
 });
 
@@ -135,9 +181,9 @@ client.post('/unstar', function(req, res) {
 	}
 	);
 	if(req.body.json) { res.json({ status: temp_err||"success" });
-	} else { 
-		res.redirect("/" + req.params.id); 
-		if (temp_err) req.flash("error", "success");
+	} else {
+		res.redirect("/story/" + req.params.id);
+		if (temp_err) res.flash("error_text", "success");
 	}
 });
 
@@ -163,9 +209,9 @@ client.post('/placeholder-shortID/remove', function(req, res) {
 });
 
 client.post('/create', function(req, res) {
-	if (!req.user) {
+	if (req.user == undefined) {
 		req.flash("error", "You need to be logged in.");
-		res.redirect(req.header('Referer') || '/');
+		res.redirect("back");
 	}
 	req.assert('parent', 'Parent is required.').notEmpty();
 	req.assert('content', 'Some text is required.').notEmpty();
@@ -178,7 +224,7 @@ client.post('/create', function(req, res) {
 			});
 		} else {
 			req.flash("error", errors);
-			res.redirect(req.header('Referer') || '/');
+			res.redirect("back");
 		}
 		return;
 	} else {
@@ -216,7 +262,7 @@ client.post('/create', function(req, res) {
 					});
 				} else {
 					req.flash("success", "Save successful!");
-					res.redirect('/'+shortID);
+					res.redirect('/story/'+shortID);
 				}
 			}
 		});
@@ -243,7 +289,7 @@ client.post('/user/username/preferences', function(req, res) {
 client.get('/login', function(req, res) {
 	//should return HTML
 	if(!req.user) { res.render("login", {title: "Log In"});
-	} else { res.redirect('/'); }
+	} else { res.redirect("back"); }
 });
 
 client.post('/login', passport.authenticate('local-login', {
@@ -274,7 +320,7 @@ client.post('/signup', function(req, res) {
 
 client.get('/logout', function(req, res) {
 	req.logout();
-	res.redirect('/');
+	res.redirect("back");
 });
 
 client.use(function(req, res) {
