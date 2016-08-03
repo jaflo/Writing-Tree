@@ -1,0 +1,33 @@
+@media only print {
+	body {
+		font-size: 12pt;
+	}
+	html, body, header, header a {
+		background: white !important;
+		color: black !important;
+		border: 0;
+		padding: 0;
+	}
+	header > div, main, footer {
+		padding: 0;
+		max-width: none !important;
+	}
+	header > div {
+		-webkit-filter: none !important;
+		filter: none !important;
+		margin-bottom: @pad;
+	}
+	#search, #introduction, #navigation, #currentinfo, #actions, #editor, footer .links, #user {
+		display: none;
+	}
+	#story .info {
+		opacity: 0.6 !important;
+	}
+	#print {
+		display: inline;
+	}
+	.longer footer {
+		min-height: auto;
+		height: auto;
+	}
+}

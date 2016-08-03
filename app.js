@@ -76,10 +76,7 @@ client.use(function(req, res, next) {
 	res.locals.success = req.flash('success');
 	res.locals.error = req.flash('error');
 	res.locals.user = req.user;
-	// res.back(); redirects the user back
-	res.back = function() {
-		res.redirect(req.header('Referer') || '/');
-	}
+	res.locals.url = "http://localhost:3000"+req.originalUrl;
 	next();
 });
 
@@ -214,7 +211,7 @@ client.post('/placeholder-shortID/remove', function(req, res) {
 client.post('/create', function(req, res) {
 	if (req.user == undefined) {
 		req.flash("error", "You need to be logged in.");
-		res.back();
+		res.redirect("back");
 	}
 	req.assert('parent', 'Parent is required.').notEmpty();
 	req.assert('content', 'Some text is required.').notEmpty();
@@ -227,7 +224,7 @@ client.post('/create', function(req, res) {
 			});
 		} else {
 			req.flash("error", errors);
-			res.back();
+			res.redirect("back");
 		}
 		return;
 	} else {
@@ -292,7 +289,7 @@ client.post('/user/username/preferences', function(req, res) {
 client.get('/login', function(req, res) {
 	//should return HTML
 	if(!req.user) { res.render("login", {title: "Log In"});
-	} else { res.back(); }
+	} else { res.redirect("back"); }
 });
 
 client.post('/login', passport.authenticate('local-login', {
@@ -317,7 +314,7 @@ client.post('/signup', passport.authenticate('local-signup', {
 
 client.get('/logout', function(req, res) {
 	req.logout();
-	res.back();
+	res.redirect("back");
 });
 
 client.use(function(req, res) {
