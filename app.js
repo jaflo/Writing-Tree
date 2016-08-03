@@ -212,15 +212,7 @@ client.post('/placeholder-shortID/remove', function(req, res) {
 function validateFields(req, res, callback) {
 	var errors = req.validationErrors();
 	if (errors) {
-		if (req.body.json) {
-			res.json({
-				status: "failed",
-				message: errors
-			});
-		} else {
-			req.flash("error", errors);
-			res.redirect("back");
-		}
+		failRequest(req, res, errors);
 	} else {
 		callback();
 	}
@@ -236,14 +228,24 @@ function completeRequest(req, res, success, redirect) {
 		req.flash("success", success);
 		res.redirect(redirect || "back");
 	}
+	return;
+}
+
+function failRequest(req, res, errors) {
+	if (req.body.json) {
+		res.json({
+			status: "failed",
+			message: errors
+		});
+	} else {
+		req.flash("error", errors);
+		res.redirect("back");
+	}
+	return;
 }
 
 client.post('/create', function(req, res) {
-	if (!req.user) {
-		req.flash("error", "You need to be logged in.");
-		res.redirect("back");
-		return;
-	}
+	if (!req.user) failRequest(req, res, "You need to be logged in.");
 	req.assert('parent', 'Parent is required.').notEmpty();
 	req.assert('content', 'Some text is required.').notEmpty();
 	validateFields(req, res, function() {
