@@ -151,7 +151,7 @@ client.post('/placeholder-shortID/next', function(req, res) {
 });
 
 client.post('/placeholder-shortID/jump', function(req, res) {	// not sure about url, should it be just "jump"?
-	User.find({parent: req.user.parent}, function(err, stories) {
+	User.find({parent: req.body.parent}, function(err, stories) {
 		if(err) { failRequest(req, res, "Error, try again later!"); }
 		if(stories.length == 1) {
 			failRequest(req, res, "No stories to jump to!"); 
@@ -160,13 +160,13 @@ client.post('/placeholder-shortID/jump', function(req, res) {	// not sure about 
 		var story;
 		do {
 			story = stories[Math.floor(Math.random() * stories.length)];
-		} while (story.shortID == req.user.shortID);
+		} while (story.shortID == req.body.shortID);
 		completeRequest(req, res, story, "/story/"+story.shortID);
 	});
 });
 
 client.post('/placeholder-shortID/jump-same-author', function(req, res) {	// same as above
-	User.find({ parent: req.user.parent, author: req.user.auther }, function(err, stories) {
+	User.find({ parent: req.body.parent, author: req.body.auther }, function(err, stories) {
 		if(err) { failRequest(req, res, "Error, try again later!"); }
 		if(stories.length == 1) {
 			failRequest(req, res, "No stories to jump to!"); 
@@ -175,7 +175,7 @@ client.post('/placeholder-shortID/jump-same-author', function(req, res) {	// sam
 		var story;
 		do {
 			story = stories[Math.floor(Math.random() * stories.length)];
-		} while (story.shortID == req.user.shortID);
+		} while (story.shortID == req.body.shortID);
 		completeRequest(req, res, story, "/story/"+story.shortID);
 	});
 });
