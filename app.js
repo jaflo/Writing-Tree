@@ -150,9 +150,51 @@ client.post('/placeholder-shortID/next', function(req, res) {
 	//sohuld return JSON
 });
 
-client.post('/placeholder-shortID/jump', function(req, res) {
-	//should return JSON
+client.post('/placeholder-shortID/jump', function(req, res) {	// not sure about url, should it be just "jump"?
+	User.find({parent: req.user.parent}, function(err, stories) {
+		if(err) { failRequest(req, res, "Error, try again later!"); }
+		if(stories.length == 1) {
+			failRequest(req, res, "No stories to jump to!"); 
+			return;
+		}
+		var story;
+		do {
+			story = stories[Math.floor(Math.random() * stories.length)];
+		} while (story.shortID == req.user.shortID);
+		completeRequest(req, res, story, "/story/"+story.shortID);
+	});
 });
+
+client.post('/placeholder-shortID/jump-same-author', function(req, res) {	// same as above
+	User.find({ parent: req.user.parent, author: req.user.auther }, function(err, stories) {
+		if(err) { failRequest(req, res, "Error, try again later!"); }
+		if(stories.length == 1) {
+			failRequest(req, res, "No stories to jump to!"); 
+			return;
+		}
+		var story;
+		do {
+			story = stories[Math.floor(Math.random() * stories.length)];
+		} while (story.shortID == req.user.shortID);
+		completeRequest(req, res, story, "/story/"+story.shortID);
+	});
+});
+
+client.post('/placeholder-shortID/jump', function(req, res) {	// not sure about url, should it be just "jump"?
+	User.find({parent: req.user.parent}, function(err, stories) {
+		if(err) { failRequest(req, res, "Error, try again later!"); }
+		if(stories.length == 1) {
+			failRequest(req, res, "No stories to jump to!"); 
+			return;
+		}
+		var story;
+		do {
+			story = stories[Math.floor(Math.random() * stories.length)];
+		} while (story.shortID == req.user.shortID);
+		completeRequest(req, res, story, "/story/"+story.shortID);
+	});
+});
+
 
 client.post('/star', function(req, res) {
 	var temp_err = "";

@@ -27,7 +27,7 @@ module.exports = function(passport, LocalStrategy, User) {
 		process.nextTick(function() {
 			if(req.body.reentered != req.body.password) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords do not match')); }
 			if(req.body.password.length < 6) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords must be at least 6 characters long')); }
-			if(req.body.username.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
+			if(req.body.username.match(/\s/)) { return done(null, false, req.flash('error', 'Error: Usernames can have no whitespace')); }
 			if(req.body.email.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
 			if(req.body.password.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
 			if(req.body.reentered.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
