@@ -11,6 +11,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 
+mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/Writing-Tree');
 var db = mongoose.connection;
 var User = require('./models/user.js');
@@ -165,8 +166,8 @@ client.post('/star', function(req, res) {
 	);
 	if(req.body.json) { res.json({ status: temp_err||"success" });
 	} else {
+		if (temp_err) req.flash("error", "Error: Try again later");
 		res.redirect("/" + req.params.id);
-		if (temp_err) req.flash("error", "success");
 	}
 });
 
@@ -182,8 +183,8 @@ client.post('/unstar', function(req, res) {
 	);
 	if(req.body.json) { res.json({ status: temp_err||"success" });
 	} else {
+		if (temp_err) res.flash("error", "Error: Try again later");
 		res.redirect("/story/" + req.params.id);
-		if (temp_err) res.flash("error_text", "success");
 	}
 });
 
