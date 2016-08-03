@@ -212,6 +212,7 @@ client.post('/create', function(req, res) {
 	if (req.user == undefined) {
 		req.flash("error", "You need to be logged in.");
 		res.redirect("back");
+		return;
 	}
 	req.assert('parent', 'Parent is required.').notEmpty();
 	req.assert('content', 'Some text is required.').notEmpty();
@@ -306,17 +307,11 @@ client.get('/signup', function(req, res) {
 	});
 });
 
-client.post('/signup', function(req, res) {
-	if(req.body.reentered != req.body.password) {
-		req.flash("error", "Unable to sign in: Passwords do not match"); 
-		res.redirect('/signup');
-	}
-	passport.authenticate('local-signup', {
+client.post('/signup', passport.authenticate('local-signup', {
 		successRedirect : '/', // redirect to the secure profile section
 		failureRedirect : '/signup', // redirect back to the signup page if there is an error
 		failureFlash : true // allow flash messages
-	});
-});
+}));
 
 client.get('/logout', function(req, res) {
 	req.logout();

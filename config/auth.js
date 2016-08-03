@@ -26,7 +26,8 @@ module.exports = function(passport, LocalStrategy, User) {
 		// asynchronous
 		// User.findOne wont fire unless data is sent back
 		process.nextTick(function() {
-
+			if(req.body.reentered != req.body.password) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords do not match')); }
+			if(req.body.password.length < 6) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords must be at least 6 characters long')); }
 			// find a user whose username is the same as the forms username
 			// we are checking to see if the user trying to login already exists
 			User.findOne({ 'local.username' :  username }, function(err, user) {
@@ -73,7 +74,6 @@ module.exports = function(passport, LocalStrategy, User) {
 		passwordField : 'password',
 		passReqToCallback : true // allows us to pass back the entire request to the callback
 	}, function(req, username, password, done) { // callback with username and password from our form
-
 		// find a user whose username is the same as the forms username
 		// we are checking to see if the user trying to login already exists
 		User.findOne({ 'username' :  username }, function(err, user) {
