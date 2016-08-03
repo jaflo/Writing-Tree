@@ -132,7 +132,10 @@ client.get('/story/:id', function(req, res) {
 			}
 			stories.push(newStory);
 			console.log(stories);
-			res.render('layouts/story', {story: stories});
+			res.render('index', {
+				bodyclass: "longer",
+				story: stories
+			});
 		}else{
 			console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
 		}

@@ -1,11 +1,14 @@
 <div id="introduction">This is some introductory text that explains the site. You can use the U, I, O, and P buttons on your keyboard to continue, star, write, and jump respectively. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</div>
+{{#if story}}
 <div id="story">
-	<div class="part">
-		<div class="content">Some common starter.</div>
+	{{#each story}}
+	<div class="part" id="part-{{shortid}}">
+		<div class="content">{{content}}</div>
 		<div class="info">
-			by <a href="#">author</a>
+			by <a href="/user/{{author}}">{{author}}</a>
 		</div>
 	</div>
+	{{/each}}
 </div>
 <div id="spacer"></div>
 <div id="currentinfo">
@@ -65,3 +68,6 @@
 	</div>
 </form>
 <div id="tester"></div>
+{{else}}
+Something went wrong.
+{{/if}}
