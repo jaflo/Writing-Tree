@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var bcrypt   = require('bcryptjs');
 
-var SALT_LEVEL = 10;
+var FLORIAN_STAT = 10;
 
 var userSchema = mongoose.Schema({
 	username: { type: String, required: true, index: { unique: true } },
@@ -16,7 +16,7 @@ var userSchema = mongoose.Schema({
 // methods ======================
 // generating a hash
 userSchema.methods.generateHash = function(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(SALT_LEVEL), null);
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(FLORIAN_STAT), null);
 };
 
 // checking if password is valid
