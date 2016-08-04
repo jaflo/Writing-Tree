@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+	<title>Continuity{{#if title}} | {{title}}{{/if}}</title>
+	<link rel="stylesheet" type="text/css" href="/styles.css">
+	<link rel="stylesheet" type="text/css" href="//opensource.keycdn.com/fontawesome/4.6.3/font-awesome.min.css">
+</head>
+<body class="{{#if user}}loggedin{{/if}}{{#if bodyclass}} {{bodyclass}}{{/if}}">
+	<header>
+		<div>
+			{{#if user}}
+				 <a href="/user/{{user.username}}" id="user" title="That's you!">{{user.username}}</a>
+			{{else}}
+				<a href="/login" id="user" title="Don't be a stranger!">guest</a>
+			{{/if}}
+			<h1><a href="/" title="Return to home page">Website</a></h1>
+			<div id="userdropdown">
+				<a href="#" class="darktoggle">Dark mode <div></div></a>
+				{{#if user}}
+					<a href="/favorites">Favorites</a>
+					<a href="/mine">My continuations</a>
+					<a href="/logout">Log out</a>
+				{{else}}
+					<a href="/login">Log in</a>
+					<a href="/signup">Sign up</a>
+				{{/if}}
+			</div>
+		</div>
+	</header>
+	<form action="/search" id="search">
+		<input type="text" name="q" placeholder="Search" />
+	</form>
+	<main>
+		{{#if success}}
+			<div class="alert success">{{success}}</div>
+		{{/if}}
+		{{#if error}}
+			<div class="alert error">{{error}}</div>
+		{{/if}}
+    <div id="story">
+      {{#each story}}
+    	<div class="part">
+    		<div class="content">{{this.content}}</div>
+    		<div class="info">
+    			by <a href="#">{{this.author}}</a>
+    		</div>
+    	</div>
+      {{/each}}
+    </div>
+    <div id="spacer"></div>
+    <div id="currentinfo">
+    	<span class="stars" title="Favorites">
+    		<i class="fa fa-star-o" aria-hidden="true"></i>
+    		<span>10</span>
+    	</span>
+    	<span class="possiblities" title="Alternate continuations">
+    		<i class="fa fa-clone" aria-hidden="true"></i>
+    		<span>4</span>
+    	</span>
+    	<span class="views" title="Views">
+    		<i class="fa fa-eye" aria-hidden="true"></i>
+    		<span>578</span>
+    	</span>
+    	<span class="age" title="Age">
+    		<i class="fa fa-clock-o" aria-hidden="true"></i>
+    		<span>2 days</span>
+    	</span>
+    </div><div id="navigation">
+    	<button class="jump" title="Alternate continuation">
+    		Jump
+    		<i class="fa fa-repeat" aria-hidden="true"></i>
+    	</button>
+    	<button class="continue">
+    		Continue
+    		<i class="fa fa-angle-double-down" aria-hidden="true"></i>
+    	</button>
+    	<button class="write" title="Write">
+    		Write
+    		<i class="fa fa-pencil" aria-hidden="true"></i>
+    	</button>
+    </div><div id="actions" class="toolbar">
+    	<button class="star" title="Favorite">
+    		<span>
+    			Star
+    			<i class="fa fa-star-o" aria-hidden="true"></i>
+    		</span>
+    	</button>
+    	<button class="jump" title="Alternate continuation">
+    		<span>
+    			Jump
+    			<i class="fa fa-repeat" aria-hidden="true"></i>
+    		</span>
+    	</button>
+    	<button class="main continue"><span>Continue</span></button>
+    </div>
+    <form action="/create" id="editor" method="post">
+    	<label for="content" class="overlay">or write your own</label>
+    	<input type="hidden" name="parent" value={{currentID}} />
+    	<textarea name="content" cols="30" rows="10" name="content" id="content"></textarea>
+    	<div class="toolbar">
+    		<button type="button" class="preview"><span>Preview</span></button>
+    		<button type="submit" class="main publish" title="Submit this as continuation to the story"><span>Publish</span></button>
+    	</div>
+    </form>
+	</main>
+	<footer>
+		&copy; 2016 jaflo &ndash; All continuations belong to their respective owners.<br />
+		<a href="">About</a> <a href="">Terms of service</a> <a href="">Privacy policy</a>
+	</footer>
+	<div id="cover" class="hidden"></div>
+	<div id="debug"></div>
+	<script src="//code.jquery.com/jquery-latest.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+	<script src="/script.js"></script>
+</body>
+</html>
