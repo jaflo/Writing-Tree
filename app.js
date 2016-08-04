@@ -119,39 +119,46 @@ client.get('/', function(req, res) {
     //should return HTML
 });
 
-function getParentStory(newStory, storyArray, callback, currentID, res){
-	if(newStory.shortID != '0'){
-		storyArray.unshift(newStory);
-		mongoose.model('Story').findOne({ shortID: newStory.parent }, function(err, newParentStory){
-			if(!err){
-				callback(newParentStory, storyArray, callback, currentID, res);
-			}else{
-				console.log('ERROR: Parent story could not be found');
-			}
-		});
-	}else{
-		storyArray.unshift(newStory);
-		res.render('layouts/story', {story: storyArray, currentID: currentID});
-	}
+function getParentStory(newStory, storyArray, callback, currentID, res) {
+    if (newStory.shortID != '0') {
+        storyArray.unshift(newStory);
+        mongoose.model('Story').findOne({
+            shortID: newStory.parent
+        }, function(err, newParentStory) {
+            if (!err) {
+                callback(newParentStory, storyArray, callback, currentID, res);
+            } else {
+                console.log('ERROR: Parent story could not be found');
+            }
+        });
+    } else {
+        storyArray.unshift(newStory);
+        res.render('layouts/story', {
+            story: storyArray,
+            currentID: currentID
+        });
+    }
 }
 
 client.get('/story/:id', function(req, res) {
-	mongoose.model('Story').findOne({ shortID: req.params.id }, function(err, story){
-		if(!err && story !== null){
-			var stories = [];
-			var newStory = story;
+    mongoose.model('Story').findOne({
+        shortID: req.params.id
+    }, function(err, story) {
+        if (!err && story !== null) {
+            var stories = [];
+            var newStory = story;
 
-			getParentStory(newStory, stories, getParentStory, story.shortID, res);
-		}else{
-			console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
-    }
-  });
+            getParentStory(newStory, stories, getParentStory, story.shortID, res);
+        } else {
+            console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
+        }
+    });
 });
 
 client.post('/placeholder-shortID/next', function(req, res) {
     mongoose.model('Story').findOne({
         'parent': req.body.parent,
-        'author': req.body.author;
+        'author': req.body.author
     }, function(err, docs) {
         if (!err && docs !== null) {
             res.json([Math.floor(Math.random() * docs.length)]);
@@ -175,7 +182,6 @@ client.post('/placeholder-shortID/next', function(req, res) {
     });
 });
 
-<<<<<<< HEAD
 client.post('/placeholder-shortID/jump', function(req, res) { // not sure about url, should it be just "jump"?
     User.find({
         parent: req.body.parent
@@ -213,37 +219,46 @@ client.post('/placeholder-shortID/jump-same-author', function(req, res) { // sam
         } while (story.shortID == req.user.shortID);
         completeRequest(req, res, story, "/story/" + story.shortID);
     });
-=======
-client.post('/placeholder-shortID/jump', function(req, res) {	// not sure about url, should it be just "jump"?
-	User.find({parent: req.body.parent}, function(err, stories) {
-		if(err) { failRequest(req, res, "Error, try again later!"); }
-		if(stories.length == 1) {
-			failRequest(req, res, "No stories to jump to!");
-			return;
->>>>>>> dcb96c80ba41b5c073ccbdae8fb2b66a56d7333d
-		}
-		var story;
-		do {
-			story = stories[Math.floor(Math.random() * stories.length)];
-		} while (story.shortID == req.body.shortID);
-		completeRequest(req, res, story, "/story/"+story.shortID);
-	});
 });
 
-client.post('/placeholder-shortID/jump-same-author', function(req, res) {	// same as above
-	User.find({ parent: req.body.parent, author: req.body.auther }, function(err, stories) {
-		if(err) { failRequest(req, res, "Error, try again later!"); }
-		if(stories.length == 1) {
-			failRequest(req, res, "No stories to jump to!");
-			return;
-		}
-		var story;
-		do {
-			story = stories[Math.floor(Math.random() * stories.length)];
-		} while (story.shortID == req.body.shortID);
-		completeRequest(req, res, story, "/story/"+story.shortID);
-	});
->>>>>>> master
+client.post('/placeholder-shortID/jump', function(req, res) { // not sure about url, should it be just "jump"?
+    User.find({
+        parent: req.body.parent
+    }, function(err, stories) {
+        if (err) {
+            failRequest(req, res, "Error, try again later!");
+        }
+        if (stories.length == 1) {
+            failRequest(req, res, "No stories to jump to!");
+            return;
+        }
+        var story;
+        do {
+            story = stories[Math.floor(Math.random() * stories.length)];
+        } while (story.shortID == req.body.shortID);
+        completeRequest(req, res, story, "/story/" + story.shortID);
+    });
+});
+
+client.post('/placeholder-shortID/jump-same-author', function(req, res) { // same as above
+    User.find({
+        parent: req.body.parent,
+        author: req.body.auther
+    }, function(err, stories) {
+        if (err) {
+            failRequest(req, res, "Error, try again later!");
+        }
+        if (stories.length == 1) {
+            failRequest(req, res, "No stories to jump to!");
+            return;
+        }
+        var story;
+        do {
+            story = stories[Math.floor(Math.random() * stories.length)];
+        } while (story.shortID == req.body.shortID);
+        completeRequest(req, res, story, "/story/" + story.shortID);
+    });
+    master
 });
 
 client.post('/placeholder-shortID/jump', function(req, res) { // not sure about url, should it be just "jump"?
@@ -377,66 +392,67 @@ function failRequest(req, res, errors) {
 }
 
 client.post('/create', function(req, res) {
-<<<<<<< HEAD
-	if (!req.user) {
-		req.flash("error", "You need to be logged in.");
-		res.redirect(req.header('Referer') || '/');
-	}
-	req.assert('parent', 'Parent is required.').notEmpty();
-	req.assert('content', 'Some text is required.').notEmpty();
-	var errors = req.validationErrors();
-	if (errors) {
-		if (req.body.json) {
-			res.json({
-				status: "failed",
-				message: errors
-			});
-		} else {
-			req.flash("error", errors);
-			res.redirect(req.header('Referer') || '/');
-		}
-		return;
-	} else {
-		attemptCreation(randomString());
-	}
-	function attemptCreation(shortID) {
-		console.log(shortID);
-		Story.findOne({ 'shortID': shortID }, 'author', function(err, story) {
-			if (err) return handleError(err); // [TODO] handleError
-			if (story) { // story with that ID already exists, so new ID
-				attemptCreation(randomString());
-			} else {
-				var test = new Story({
-				shortID: shortID,
-				parent: req.body.parent, // [TODO] check if exists
-				author: req.user.id,
-				content: req.body.content, // [TODO] validate
-				createdat: Date.now(),
-				changedat: Date.now()
-				});
-				//console.log(test);
-				test.save(function(err, test) {
-					if (err) return console.error(err);
-					console.dir(test);
-				});
-				console.log("Save successful");
-				Story.find(function(err, stories) {
-					if (err) return console.error(err);
-					console.dir(stories);
-				});
-				if (req.body.json) {
-					res.json({
-						status: "success",
-						message: "Save successful!"
-					});
-				} else {
-					req.flash("success", "Save successful!");
-					res.redirect('/story/'+shortID);
-				}
-			}
-		});
-	}
-=======
+    if (!req.user) {
+        req.flash("error", "You need to be logged in.");
+        res.redirect(req.header('Referer') || '/');
+    }
+    req.assert('parent', 'Parent is required.').notEmpty();
+    req.assert('content', 'Some text is required.').notEmpty();
+    var errors = req.validationErrors();
+    if (errors) {
+        if (req.body.json) {
+            res.json({
+                status: "failed",
+                message: errors
+            });
+        } else {
+            req.flash("error", errors);
+            res.redirect(req.header('Referer') || '/');
+        }
+        return;
+    } else {
+        attemptCreation(randomString());
+    }
+
+    function attemptCreation(shortID) {
+        console.log(shortID);
+        Story.findOne({
+            'shortID': shortID
+        }, 'author', function(err, story) {
+            if (err) return handleError(err); // [TODO] handleError
+            if (story) { // story with that ID already exists, so new ID
+                attemptCreation(randomString());
+            } else {
+                var test = new Story({
+                    shortID: shortID,
+                    parent: req.body.parent, // [TODO] check if exists
+                    author: req.user.id,
+                    content: req.body.content, // [TODO] validate
+                    createdat: Date.now(),
+                    changedat: Date.now()
+                });
+                //console.log(test);
+                test.save(function(err, test) {
+                    if (err) return console.error(err);
+                    console.dir(test);
+                });
+                console.log("Save successful");
+                Story.find(function(err, stories) {
+                    if (err) return console.error(err);
+                    console.dir(stories);
+                });
+                if (req.body.json) {
+                    res.json({
+                        status: "success",
+                        message: "Save successful!"
+                    });
+                } else {
+                    req.flash("success", "Save successful!");
+                    res.redirect('/story/' + shortID);
+                }
+            }
+        });
+    }
     if (!req.user) failRequest(req, res, "You need to be logged in.");
     req.assert('parent', 'Parent is required.').notEmpty();
     req.assert('content', 'Some text is required.').notEmpty();
@@ -475,7 +491,6 @@ client.post('/create', function(req, res) {
             }
         });
     }
->>>>>>> dcb96c80ba41b5c073ccbdae8fb2b66a56d7333d
 });
 
 client.get('/user/username/starred', function(req, res) {
