@@ -64,10 +64,10 @@ $("#navigation .continue, #actions .continue").click(function() {
 			console.log(res);
 			if (res.status == "success") {
 				if (hasSeenNewest) {
+					cleanupStory();
 					addNew(res.data.content, res.data);
 					hasSeenNewest = false;
 					$(window).scroll();
-					history.pushState({}, "", "/story/"+res.data.shortID);
 				} else {
 					$("html, body").stop().animate({
 						scrollTop: $("#story .part").last().offset().top - 60
@@ -83,7 +83,27 @@ $("#navigation .continue, #actions .continue").click(function() {
 $(window).scroll(function() {
 	var win = $(window);
 	if (!hasSeenNewest && win.scrollTop() + win.height() > $("#editor").offset().top + 60) hasSeenNewest = true;
+}).on("popstate", function(e) {
+	if (e.originalEvent.state) stateChange(e.originalEvent.state);
+	else stateChange({
+		id: 0,
+		changedat: "oh no",
+		views: 9999999
+	});
 });
+
+function stateChange(state) {
+	$(".part").removeClass("pseudo-last").show();
+	$("#part-"+state.id).nextAll(".part").hide();
+	$(".part:visible").last().addClass("pseudo-last");
+	syncState(state);
+}
+
+function syncState(state) {
+	$("#editor [name=parent]").val(state.id);
+	$("#currentinfo time").attr("datetime", (new Date(state.changedat)).toISOString());
+	$("#currentinfo .views span").text(state.views);
+}
 
 function addNew(nextText, data) {
 	$("#spacer").removeClass("animate").outerWidth();
@@ -94,21 +114,33 @@ function addNew(nextText, data) {
 	$("#spacer").addClass("animate").height(contentHeight);
 	$("#currentinfo").addClass("fade");
 	$("#editor [name=parent]").val(data.shortID);
+	var state = {
+		id: data.shortID,
+		changedat: data.changedat,
+		views: data.views
+	};
+	history.pushState(state, "", "/story/"+data.shortID);
 	animating = true;
 	setTimeout(function() {
-		$("#currentinfo time").attr("datetime", (new Date(data.changedat)).toISOString());
-		$("#currentinfo .views span").text(data.views);
 		$("#spacer").removeClass("animate").height(0).outerWidth();
 		$("#story").append(piece);
+		$("#story .part .rewind.jsadd").unbind("click").click(function(e) {
+			var parts = $(this).attr("href").split("/"),
+				id = parts[parts.length-1];
+			window.history.go(-$("#part-"+id).nextAll(".part:visible").length);
+			stateChange(JSON.parse($(this).attr("data-state")));
+			e.preventDefault();
+		});
+		syncState(state)
 		$("#story .part").outerWidth();
-		$("#story .part").removeClass("hidden");
+		$("#story .part").removeClass("hidden").find("a.rewind").attr("data-state", JSON.stringify(state));
 		$("#currentinfo").removeClass("fade");
 		animating = false;
 	}, 350);
 }
 
 function makePart(data) {
-	return $("<div>").addClass("hidden part").append(
+	return $("<div>").attr("id", "part-"+data.shortID).addClass("hidden part").append(
 		$("<div>").addClass("content").text(data.content)
 	).append(
 		$("<div>").addClass("info").html('by <a href="/user/'+data.author+'">'+data.author+'</a> ').append(
@@ -116,10 +148,16 @@ function makePart(data) {
 				/*'<a href="#" class="star">star</a> '+
 				'<a href="#" class="comment">comment</a> '+
 				'<a href="#" class="flag">flag</a> '+*/
-				'<a href="/story/'+data.shortID+'" class="rewind">rewind</a>'
+				'<a href="/story/'+data.shortID+'" class="rewind jsadd">rewind</a>'
 			)
 		)
 	);
+}
+
+function cleanupStory() {
+	var id = $("#editor [name=parent]").val();
+	$("#part-"+id).nextAll(".part").remove();
+	$(".part").removeClass("pseudo-last").show();
 }
 
 $("#navigation .jump, #actions .jump").click(function() {
@@ -130,6 +168,7 @@ $("#navigation .jump, #actions .jump").click(function() {
 			spacerHeight = $("#spacer").height(),
 			targetWidth = $("#spacer").height($("#story .part").last().outerHeight()).outerWidth();
 		var currHeight = $("#story .part").last().width(targetWidth).addClass("exitleft").outerHeight();
+		cleanupStory();
 		$("#spacer").addClass("animate").outerWidth();
 		$("#spacer").height(contentHeight).css("margin-top", -currHeight + "px");
 		$("#currentinfo").addClass("fade");
@@ -171,7 +210,6 @@ $("#editor").submit(function() {
 		if (res.status == "success") {
 			addNew(res.data.content, res.data);
 			$("#editor textarea").val("");
-			history.pushState({}, "", "/story/"+res.data.shortID);
 		}
 	}, "json");
 	return false;

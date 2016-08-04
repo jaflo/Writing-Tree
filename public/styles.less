@@ -340,8 +340,9 @@ header {
 			transform: translateX(200%);
 			opacity: 0;
 		}
-		&:last-child .right {
+		&:last-of-type .right, &.pseudo-last .right {
 			opacity: 0;
+			transition: none !important;
 		}
 	}
 }
