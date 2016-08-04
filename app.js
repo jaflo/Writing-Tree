@@ -119,24 +119,21 @@ client.get('/', function(req, res) {
     //should return HTML
 });
 
-function getParentStory(newStory, storyArray, callback, currentID, res) {
+function getParentStory(newStory, storyArray, callback, render) {
     if (newStory.shortID != '0') {
-        storyArray.unshift(newStory);
+        storyArray.stories.unshift(newStory);
         mongoose.model('Story').findOne({
             shortID: newStory.parent
         }, function(err, newParentStory) {
             if (!err) {
-                callback(newParentStory, storyArray, callback, currentID, res);
+                callback(newParentStory, storyArray, callback, render);
             } else {
                 console.log('ERROR: Parent story could not be found');
             }
         });
     } else {
-        storyArray.unshift(newStory);
-        res.render('layouts/story', {
-            story: storyArray,
-            currentID: currentID
-        });
+        storyArray.stories.unshift(newStory);
+				render();
     }
 }
 
@@ -145,10 +142,18 @@ client.get('/story/:id', function(req, res) {
         shortID: req.params.id
     }, function(err, story) {
         if (!err && story !== null) {
-            var stories = [];
+            var stories = {
+							stories: []
+						};
             var newStory = story;
 
-            getParentStory(newStory, stories, getParentStory, story.shortID, res);
+            getParentStory(newStory, stories, getParentStory, function(){
+			        res.render('layouts/story', {
+			            story: stories.stories,
+			            currentID: story.shortID,
+									date: timeSince(story.changedat)
+			        });
+						});
         } else {
             console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
         }
@@ -497,4 +502,32 @@ client.use(function(req, res) {
 
 function randomString(length) {
     return Math.random().toString(36).substr(2, length || 5);
+}
+
+function timeSince(date) {
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+
+    var interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+        return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+        return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+        return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+        return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+        return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
 }
