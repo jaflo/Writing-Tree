@@ -141,19 +141,24 @@ client.get('/story/:id', function(req, res) {
     mongoose.model('Story').findOne({
         shortID: req.params.id
     }, function(err, story) {
-        if (!err && story !== null) {
+        if (!err && story !== null) {8
+			Story.update({ shortID: req.params.id },
+				{ $set: { views: story.views + 1 }},
+				{ upsert: true },
+				function(err, st){});
             var stories = {
-							stories: []
-						};
+				stories: []
+			};
             var newStory = story;
 
             getParentStory(newStory, stories, getParentStory, function(){
-			        res.render('layouts/story', {
-			            story: stories.stories,
-			            currentID: story.shortID,
-									date: timeSince(story.changedat)
-			        });
-						});
+			    res.render('layouts/story', {
+			        story: stories.stories,
+			        currentID: story.shortID,
+					date: timeSince(story.changedat),
+					views: story.views
+			    });
+			});
         } else {
             console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
         }

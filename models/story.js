@@ -39,6 +39,11 @@ var storySchema = mongoose.Schema({
     changedat: {
         type: Date,
         required: true,
+    },
+    views: {
+		type: Number,
+		required: true,
+		default: 0
     }
 });
 
