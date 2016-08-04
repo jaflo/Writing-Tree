@@ -152,12 +152,19 @@ client.get('/story/:id', function(req, res) {
             var newStory = story;
 
             getParentStory(newStory, stories, getParentStory, function(){
-			    res.render('layouts/story', {
-			        story: stories.stories,
-			        currentID: story.shortID,
-					date: timeSince(story.changedat),
-					views: story.views
-			    });
+				Story.count({parent: story.parent}, function(err, siblingCount) {
+					if(!err){
+				    	res.render('layouts/story', {
+				        	story: stories.stories,
+				        	currentID: story.shortID,
+							date: timeSince(story.changedat),
+							views: story.views,
+							siblings: siblingCount
+				    	});
+					}else{
+						console.log('ERROR: Could not find siblings of story ' + story.shortID);
+					}
+				});
 			});
         } else {
             console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
