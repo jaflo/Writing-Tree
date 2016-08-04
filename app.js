@@ -333,6 +333,7 @@ function failRequest(req, res, errors) {
 }
 
 client.post('/create', function(req, res) {
+	/*
     if (!req.user) {
         req.flash("error", "You need to be logged in.");
         res.redirect(req.header('Referer') || '/');
@@ -393,7 +394,7 @@ client.post('/create', function(req, res) {
                 }
             }
         });
-    }
+    }*/
     if (!req.user) failRequest(req, res, "You need to be logged in.");
     req.assert('parent', 'Parent is required.').notEmpty();
     req.assert('content', 'Some text is required.').notEmpty();
