@@ -90,10 +90,10 @@ Story.collection.drop(); //For testion purposes, deletes all previous stories on
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
-    if (count == 0) {
+    //if (count == 0) {
         var parentStory = new Story({
             shortID: '0',
-            parent: '0', // [TODO] check if exists
+            parent: "this should never be a valid parent. kind of a hack", // [TODO] check if exists
             author: 'Your homedog, ejmejm',
             content: 'This is the parent story of all parents.', // [TODO] validate
             createdat: Date.now(),
@@ -102,10 +102,10 @@ Story.collection.count({}, function(err, count) {
 
         parentStory.save(function(err, parentStory) {
             if (err) return console.error(err);
-            console.dir(parentStory);
+            //console.dir(parentStory);
         });
         console.log("Save successful");
-    }
+    //}
 });
 
 client.listen(client.get('port'), function() {
@@ -192,71 +192,61 @@ client.get('/story/:id', function(req, res) {
     });
 });
 
-client.post('/placeholder-shortID/next', function(req, res) {
-    mongoose.model('Story').findOne({
-        'parent': req.body.parent,
-        'author': req.body.author
-    }, function(err, docs) {
-        if (!err && docs !== null) {
-            res.json([Math.floor(Math.random() * docs.length)]);
-        } else if (!err && docs === null) {
-            mongoose.model('Story').findOne({
-                'parentID': req.params.id
-            }, function(err, docs) {
-                if (!err && docs !== null) {
-                    res.json([Math.floor(Math.random() * docs.length)]);
-                } else if (!err && docs === null) {
-                    res.json({
-                        'nochild': 'true'
-                    });
-                } else {
-                    console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
-                }
-            });
-        } else {
-            console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
-        }
+client.get('/next', function(req, res) {
+	req.assert('parent', 'Parent id is required.').notEmpty();
+    validateFields(req, res, function() {
+	    mongoose.model('Story').findOne({
+	        'parent': req.query.parent,
+	        'author': req.query.author
+	    }, function(err, docs) {
+	        if (!err && docs !== null) {
+	            res.json([Math.floor(Math.random() * docs.length)]);
+	            console.log("something should happen");
+                console.log(docs);
+	        } else if (!err && docs === null) {
+	            mongoose.model('Story').findOne({
+	                'parent': req.query.parent // [TODO] randomization
+	            }, function(err, docs) {
+	                if (!err && docs !== null) {
+	                	// [TODO] show relevant content
+	                	completeRequest(req, res, false, "story/"+docs.shortID, docs);
+	                    //res.json([Math.floor(Math.random() * docs.length)]);
+	                } else if (!err && docs === null) {
+	                    failRequest(req, res, "No children.");
+	                } else {
+	                    console.log('ERROR: Story with parentID ' + req.query.parent + ' not found');
+	                    failRequest(req, res, "Invalid parent ID.");
+	                }
+	            });
+	        } else {
+	            console.log('ERROR: Story with shortID ' + req.query.id + ' not found');
+	            failRequest(req, res, "Invalid parent ID.");
+	        }
+	    });
     });
 });
 
-client.post('/placeholder-shortID/jump', function(req, res) { // not sure about url, should it be just "jump"?
-    User.find({
-        parent: req.body.parent
-    }, function(err, stories) {
-        if (err) {
-            failRequest(req, res, "Error, try again later!");
-        }
-        if (stories.length == 1) {
-            failRequest(req, res, "No stories to jump to!");
-            return;
-        }
-        var story;
-        do {
-            story = stories[Math.floor(Math.random() * stories.length)];
-        } while (story.shortID == req.body.shortID);
-        completeRequest(req, res, story, "/story/" + story.shortID);
+client.post('/jump', function(req, res) { // not sure about url, should it be just "jump"?
+    req.assert('parent', 'Parent id is required.').notEmpty();
+    validateFields(req, res, function() {
+        var parameters = {
+	        parent: req.body.parent
+	    };
+	    if (req.body.sameauthor) parameters.author = req.body.author; // should be parent author ID
+	    User.find(parameter, function(err, stories) {
+	        if (err) {
+	            return failRequest(req, res, "Error, try again later!");
+	        }
+	        if (stories.length == 1) {
+	            return failRequest(req, res, "No stories to jump to!");
+	        }
+	        var story;
+	        do {
+	            story = stories[Math.floor(Math.random() * stories.length)];
+	        } while (story.shortID == req.body.shortID);
+	        completeRequest(req, res, story, "/story/" + story.shortID);
+	    });
     });
-});
-
-client.post('/placeholder-shortID/jump-same-author', function(req, res) { // same as above
-    User.find({
-        parent: req.body.parent,
-        author: req.body.auther
-    }, function(err, stories) {
-        if (err) {
-            failRequest(req, res, "Error, try again later!");
-        }
-        if (stories.length == 1) {
-            failRequest(req, res, "No stories to jump to!");
-            return;
-        }
-        var story;
-        do {
-            story = stories[Math.floor(Math.random() * stories.length)];
-        } while (story.shortID == req.body.shortID);
-        completeRequest(req, res, story, "/story/" + story.shortID);
-    });
-    master
 });
 
 client.post('/star', function(req, res) {
@@ -275,7 +265,7 @@ client.post('/star', function(req, res) {
             temp_err += err + " "; // [TODO] consider array
         }
     );
-    if (req.body.json) {
+    if (req.xhr) {
         res.json({
             status: temp_err || "success"
         });
@@ -301,7 +291,7 @@ client.post('/unstar', function(req, res) {
             temp_err += err + " "; // [TODO] consider array
         }
     );
-    if (req.body.json) {
+    if (req.xhr) {
         res.json({
             status: temp_err || "success"
         });
@@ -343,21 +333,22 @@ function validateFields(req, res, callback) {
     }
 }
 
-function completeRequest(req, res, success, redirect) {
-    if (req.body.json) {
+function completeRequest(req, res, success, redirect, data) {
+    if (req.xhr) {
         res.json({
             status: "success",
-            message: success
+            message: success,
+            data: data || false
         });
     } else {
-        req.flash("success", success);
+        if (success) req.flash("success", success);
         res.redirect(redirect || "back");
     }
     return;
 }
 
 function failRequest(req, res, errors) {
-    if (req.body.json) {
+    if (req.xhr) {
         res.json({
             status: "failed",
             message: errors
@@ -379,7 +370,7 @@ client.post('/create', function(req, res) {
     req.assert('content', 'Some text is required.').notEmpty();
     var errors = req.validationErrors();
     if (errors) {
-        if (req.body.json) {
+        if (req.xhr) {
             res.json({
                 status: "failed",
                 message: errors
@@ -420,7 +411,7 @@ client.post('/create', function(req, res) {
                     if (err) return console.error(err);
                     console.dir(stories);
                 });
-                if (req.body.json) {
+                if (req.xhr) {
                     res.json({
                         status: "success",
                         message: "Save successful!"
@@ -466,7 +457,7 @@ client.post('/create', function(req, res) {
                     if (err) return console.error(err);
                     //console.dir(stories);
                 });
-                completeRequest(req, res, "Save successful!", '/story/' + shortID);
+                completeRequest(req, res, "Save successful!", '/story/' + shortID, test);
             }
         });
     }

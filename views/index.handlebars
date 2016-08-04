@@ -2,10 +2,13 @@
 {{#if story}}
 <div id="story">
 	{{#each story}}
-	<div class="part" id="part-{{shortid}}">
+	<div class="part" id="part-{{shortID}}">
 		<div class="content">{{content}}</div>
 		<div class="info">
 			by <a href="/user/{{author}}">{{author}}</a>
+			<div class="right">
+				<a href="/story/{{shortID}}" class="rewind">rewind</a>
+			</div>
 		</div>
 	</div>
 	{{/each}}
