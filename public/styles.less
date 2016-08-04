@@ -407,6 +407,17 @@ header {
 		html.darkmode & {
 			background: @darksitecolor;
 		}
+		.transition;
+		box-shadow: 0 0 10px -3px @sitecolor;
+		&:hover {
+			box-shadow: 0 4px 10px -2px @sitecolor;
+		}
+		html.darkmode &:hover {
+			box-shadow: 0 4px 10px -2px @darksitecolor;
+		}
+		html.darkmode &, &:active {
+			box-shadow: none;
+		}
 	}
 }
 

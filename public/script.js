@@ -11,6 +11,7 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
 	options.data = $.extend(originalOptions.data, { json: true });
 });
 
+$("time").timeago();
 $(".focus").focus();
 
 $("#user").click(function(e) {

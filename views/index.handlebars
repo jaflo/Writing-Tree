@@ -18,15 +18,15 @@
 	</span>
 	<span class="possiblities" title="Alternate continuations">
 		<i class="fa fa-clone" aria-hidden="true"></i>
-		<span>4</span>
+		<span>{{siblings}}</span>
 	</span>
 	<span class="views" title="Views">
 		<i class="fa fa-eye" aria-hidden="true"></i>
-		<span>578</span>
+		<span>{{views}}</span>
 	</span>
 	<span class="age" title="Age">
 		<i class="fa fa-clock-o" aria-hidden="true"></i>
-		<span>2 days</span>
+		<time datetime="{{ISO8601}}">{{date}}</time>
 	</span>
 </div>
 <div id="navigation">
@@ -60,7 +60,7 @@
 </div>
 <form action="/create" id="editor" method="post">
 	<label for="content" class="overlay">or write your own</label>
-	<input type="hidden" name="parent" value="0" />
+	<input type="hidden" name="parent" value="{{currentID}}" />
 	<textarea name="content" cols="30" rows="10" id="content"></textarea>
 	<div class="toolbar">
 		<button type="button" class="preview"><span>Preview</span></button>

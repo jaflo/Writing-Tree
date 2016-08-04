@@ -113,15 +113,23 @@ client.listen(client.get('port'), function() {
 })
 
 client.get('/', function(req, res) {
-    res.render("index", {
-        bodyclass: "longer"
+	load(0, function(stories, story) {
+    	res.render('index', {
+	        bodyclass: "longer",
+        	story: stories,
+        	currentID: story.shortID,
+			date: timeSince(story.changedat),
+			ISO8601: story.changedat.toISOString(),
+			views: story.views,
+			siblings: story.siblings
+    	});
     });
     //should return HTML
 });
 
 function getParentStory(newStory, storyArray, callback, render) {
     if (newStory.shortID != '0') {
-        storyArray.stories.unshift(newStory);
+        storyArray.unshift(newStory);
         mongoose.model('Story').findOne({
             shortID: newStory.parent
         }, function(err, newParentStory) {
@@ -132,43 +140,55 @@ function getParentStory(newStory, storyArray, callback, render) {
             }
         });
     } else {
-        storyArray.stories.unshift(newStory);
-				render();
+        storyArray.unshift(newStory);
+		render();
     }
 }
 
-client.get('/story/:id', function(req, res) {
-    mongoose.model('Story').findOne({
-        shortID: req.params.id
+function load(shortid, complete, fail) {
+	mongoose.model('Story').findOne({
+        shortID: shortid
     }, function(err, story) {
         if (!err && story !== null) {8
-			Story.update({ shortID: req.params.id },
+			Story.update({ shortID: shortid },
 				{ $set: { views: story.views + 1 }},
 				{ upsert: true },
 				function(err, st){});
-            var stories = {
-				stories: []
-			};
+            var stories = [];
             var newStory = story;
-
             getParentStory(newStory, stories, getParentStory, function(){
 				Story.count({parent: story.parent}, function(err, siblingCount) {
 					if(!err){
-				    	res.render('layouts/story', {
-				        	story: stories.stories,
-				        	currentID: story.shortID,
-							date: timeSince(story.changedat),
-							views: story.views,
-							siblings: siblingCount
-				    	});
+						story.siblings = siblingCount;
+						complete(stories, story);
 					}else{
 						console.log('ERROR: Could not find siblings of story ' + story.shortID);
 					}
 				});
 			});
         } else {
-            console.log('ERROR: Story with shortID ' + req.params.id + ' not found');
+            console.log('ERROR: Story with shortID ' + shortid + ' not found');
+            fail();
         }
+    });
+}
+
+client.get('/story/:id', function(req, res) {
+	load(req.params.id, function(stories, story) {
+    	res.render('index', {
+	        bodyclass: "longer",
+        	story: stories,
+        	currentID: story.shortID,
+			date: timeSince(story.changedat),
+			ISO8601: story.changedat.toISOString(),
+			views: story.views,
+			siblings: story.siblings
+    	});
+    }, function() {
+    	res.status(404);
+	    res.render('404', {
+	        title: "Page not found"
+	    });
     });
 });
 
@@ -412,7 +432,7 @@ client.post('/create', function(req, res) {
             }
         });
     }*/
-    if (!req.user) failRequest(req, res, "You need to be logged in.");
+    if (!req.user) return failRequest(req, res, "You need to be logged in.");
     req.assert('parent', 'Parent is required.').notEmpty();
     req.assert('content', 'Some text is required.').notEmpty();
     validateFields(req, res, function() {
