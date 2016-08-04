@@ -1,11 +1,14 @@
 <div id="introduction">This is some introductory text that explains the site. You can use the U, I, O, and P buttons on your keyboard to continue, star, write, and jump respectively. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</div>
+{{#if story}}
 <div id="story">
-	<div class="part">
-		<div class="content">Some common starter.</div>
+	{{#each story}}
+	<div class="part" id="part-{{shortid}}">
+		<div class="content">{{content}}</div>
 		<div class="info">
-			by <a href="#">author</a>
+			by <a href="/user/{{author}}">{{author}}</a>
 		</div>
 	</div>
+	{{/each}}
 </div>
 <div id="spacer"></div>
 <div id="currentinfo">
@@ -57,7 +60,7 @@
 </div>
 <form action="/create" id="editor" method="post">
 	<label for="content" class="overlay">or write your own</label>
-	<input type="hidden" name="parent" value="test" />
+	<input type="hidden" name="parent" value="0" />
 	<textarea name="content" cols="30" rows="10" id="content"></textarea>
 	<div class="toolbar">
 		<button type="button" class="preview"><span>Preview</span></button>
@@ -65,3 +68,6 @@
 	</div>
 </form>
 <div id="tester"></div>
+{{else}}
+<div class="empty">No stories.</div>
+{{/if}}

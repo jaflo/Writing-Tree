@@ -22,14 +22,20 @@ module.exports = function(passport, LocalStrategy, User) {
 		passwordField : 'password',
 		passReqToCallback : true // allows us to pass back the entire request to the callback
 	}, function(req, username, password, done) {
-
 		// asynchronous
 		// User.findOne wont fire unless data is sent back
 		process.nextTick(function() {
-
+			if(req.body.reentered != req.body.password) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords do not match')); }
+			if(req.body.password.length < 6) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords must be at least 6 characters long')); }
+			if(req.body.username.match(/\s/)) { return done(null, false, req.flash('error', 'Error: Usernames can have no whitespace')); }
+			if(req.body.email.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
+			if(req.body.password.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
+			if(req.body.reentered.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
+			if(req.body.username > 32) { return done(null, false, req.flash('error', 'Error: Username cannot exceed 32 characters')); }
+			if(req.body.email > 500) {  return done(null, false, req.flash('error', 'Error: Email cannot exceed 500 characters')); }
 			// find a user whose username is the same as the forms username
 			// we are checking to see if the user trying to login already exists
-			User.findOne({ 'local.username' :  username }, function(err, user) {
+			User.findOne({ 'username' :  username }, function(err, user) {
 				// if there are any errors, return the error
 				if (err) { return done(err); }
 
@@ -73,7 +79,6 @@ module.exports = function(passport, LocalStrategy, User) {
 		passwordField : 'password',
 		passReqToCallback : true // allows us to pass back the entire request to the callback
 	}, function(req, username, password, done) { // callback with username and password from our form
-
 		// find a user whose username is the same as the forms username
 		// we are checking to see if the user trying to login already exists
 		User.findOne({ 'username' :  username }, function(err, user) {

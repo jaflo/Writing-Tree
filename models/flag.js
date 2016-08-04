@@ -5,6 +5,6 @@ var flagSchema = mongoose.Schema({
   flagger: String,
   flagged: String,
   status: String,
-  createdat: {type:Date, default: Date.now()}
-  , processedat: Date});
+  createdat: {type:Date, default: Date.now()}, 
+  processedat: Date});
 module.exports = mongoose.model('Flag', flagSchema);

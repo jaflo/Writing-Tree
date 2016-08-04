@@ -174,6 +174,11 @@ a {
 	background: @sitecolor;
 }
 
+.empty {
+	font-size: 1.4em;
+	text-align: center;
+}
+
 header {
 	@headerheight: 26px;
 	line-height: @headerheight;
@@ -239,7 +244,7 @@ header {
 		opacity: 0;
 		a {
 			display: block;
-			padding: @pad @pad*4 @pad @pad*2;
+			padding: @pad @pad*6 @pad @pad*2;
 			color: @almostblack;
 			border-bottom: 1px solid @bordercolor;
 			html.darkmode & {
@@ -649,9 +654,15 @@ form.blocky {
 footer {
 	text-align: center;
 	font-size: 0.9em;
-	opacity: 0.7;
-	a {
+	opacity: 0.5;
+	.links a {
 		display: inline-block;
 		margin-right: 0.5em;
 	}
 }
+
+#print {
+	display: none;
+}
+
+@import "print.less";
