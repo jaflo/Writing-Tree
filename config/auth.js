@@ -15,7 +15,6 @@ module.exports = function(passport, LocalStrategy, validator, User) {
 	// =========================================================================
 	// we are using named strategies since we have one for login and one for signup
 	// by default, if there was no name, it would just be called 'local'
-
 	passport.use('local-signup', new LocalStrategy({
 		// by default, local strategy uses username and password, we will override with username ( :D )
 		usernameField : 'username',
@@ -29,21 +28,20 @@ module.exports = function(passport, LocalStrategy, validator, User) {
 			else if(req.body.password.length < 6) { return done(null, false, req.flash('error', 'Unable to sign up: Passwords must be at least 6 characters long')); }
 			else if(req.body.password.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }
 			if(req.body.username.match(/\s/)) { return done(null, false, req.flash('error', 'Error: Usernames can have no whitespace')); }
-			else if(req.body.username > 32) { return done(null, false, req.flash('error', 'Error: Username cannot exceed 32 characters')); }
+			else if(req.body.username.length > 32) { return done(null, false, req.flash('error', 'Error: Username cannot exceed 32 characters')); }
 			if(req.body.email.match(/^\s*$/)) { return done(null, false, req.flash('error', 'Error: All fields must be filled')); }			
-			else if(req.body.email > 500) {  return done(null, false, req.flash('error', 'Error: Email cannot exceed 500 characters')); }
+			else if(req.body.email.length > 500) {  return done(null, false, req.flash('error', 'Error: Email cannot exceed 500 characters')); }
 			else if(!validator.isEmail(req.body.email)) {  return done(null, false, req.flash('error', 'Error: Must enter valid email')); }
-			// find a user whose username is the same as the forms username
-			// we are checking to see if the user trying to login already exists
+
 			User.findOne({ 'username' :  username }, function(err, user) {
 				// if there are any errors, return the error
 				if (err) { return done(err); }
 
 				// check to see if theres already a user with that username
 				if (user) {
-					return done(null, false, req.flash('error', 'That username is already taken.'));
-				} else {
-
+					return done(null, false, req.flash('error', 'That username is already taken'));
+				} 
+				else {
 					// if there is no user with that username
 					// create the user
 					var newUser = new User();
@@ -56,7 +54,8 @@ module.exports = function(passport, LocalStrategy, validator, User) {
 					newUser.changedat = Date.now();
 					// save the user
 					newUser.save(function(err) {
-						if (err) { throw err; }
+						if (err && err.code === 11000) { return done(null, false, req.flash('error', 'That email is already taken')); }
+						else if (err) { throw err; }
 						return done(null, newUser);
 					});
 				}
@@ -98,5 +97,4 @@ module.exports = function(passport, LocalStrategy, validator, User) {
 		});
 
 	}));
-
 };
