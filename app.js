@@ -8,6 +8,7 @@ var session = require('express-session');
 var flash = require('connect-flash');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var validator = require('validator');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 
@@ -52,7 +53,7 @@ client.use(session({
 
 client.use(passport.initialize());
 client.use(passport.session());
-require('./config/auth.js')(passport, LocalStrategy, User);
+require('./config/auth.js')(passport, LocalStrategy, validator, User);
 
 client.use(expressValidator({
     errorFormatter: function(param, msg, value) {
