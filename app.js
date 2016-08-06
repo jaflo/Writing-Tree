@@ -240,13 +240,13 @@ client.get('/next', function(req, res) {
     });
 });
 
-client.get('/jump', function(req, res) { // not sure about url, should it be just "jump"?
+client.post('/jump', function(req, res) { // not sure about url, should it be just "jump"?
     req.assert('parent', 'Parent id is required.').notEmpty();
     validateFields(req, res, function() {
         var parameters = {
-            parent: req.query.parent
+            parent: req.body.parent
         };
-        if (req.query.sameauthor) parameters.author = req.query.author; // should be parent author ID
+        if (req.body.sameauthor) parameters.author = req.body.author; // should be parent author ID
         User.find(parameter, function(err, stories) {
             if (err) {
                 return failRequest(req, res, "Error, try again later!");
@@ -257,19 +257,19 @@ client.get('/jump', function(req, res) { // not sure about url, should it be jus
             var story;
             do {
                 story = stories[Math.floor(Math.random() * stories.length)];
-            } while (story.shortID == req.query.shortID);
+            } while (story.shortID == req.body.shortID);
             completeRequest(req, res, story, "/story/" + story.shortID);
         });
     });
 });
 
-client.get('/star', function(req, res) {
+client.post('/star', function(req, res) {
     var temp_err = "";
     User.update({
             username: req.user.username
         }, {
             $push: {
-                favs: req.query.id
+                favs: req.body.id
             }
         }, {
             safe: true,
@@ -289,13 +289,13 @@ client.get('/star', function(req, res) {
     }
 });
 
-client.get('/unstar', function(req, res) {
+client.post('/unstar', function(req, res) {
     var temp_err = "";
     User.update({
             username: req.user.username
         }, {
             $pull: {
-                favs: req.query.id
+                favs: req.body.id
             }
         }, {
             safe: true,
@@ -375,68 +375,6 @@ function failRequest(req, res, errors) {
 }
 
 client.post('/create', function(req, res) {
-    /*
-    if (!req.user) {
-        req.flash("error", "You need to be logged in.");
-        res.redirect(req.header('Referer') || '/');
-    }
-    req.assert('parent', 'Parent is required.').notEmpty();
-    req.assert('content', 'Some text is required.').notEmpty();
-    var errors = req.validationErrors();
-    if (errors) {
-        if (req.xhr) {
-            res.json({
-                status: "failed",
-                message: errors
-            });
-        } else {
-            req.flash("error", errors);
-            res.redirect(req.header('Referer') || '/');
-        }
-        return;
-    } else {
-        attemptCreation(randomString());
-    }
-
-    function attemptCreation(shortID) {
-        console.log(shortID);
-        Story.findOne({
-            'shortID': shortID
-        }, 'author', function(err, story) {
-            if (err) return handleError(err); // [TODO] handleError
-            if (story) { // story with that ID already exists, so new ID
-                attemptCreation(randomString());
-            } else {
-                var test = new Story({
-                    shortID: shortID,
-                    parent: req.body.parent, // [TODO] check if exists
-                    author: req.user.id,
-                    content: req.body.content, // [TODO] validate
-                    createdat: Date.now(),
-                    changedat: Date.now()
-                });
-                //console.log(test);
-                test.save(function(err, test) {
-                    if (err) return console.error(err);
-                    console.dir(test);
-                });
-                console.log("Save successful");
-                Story.find(function(err, stories) {
-                    if (err) return console.error(err);
-                    console.dir(stories);
-                });
-                if (req.xhr) {
-                    res.json({
-                        status: "success",
-                        message: "Save successful!"
-                    });
-                } else {
-                    req.flash("success", "Save successful!");
-                    res.redirect('/story/' + shortID);
-                }
-            }
-        });
-    }*/
     if (!req.user) return failRequest(req, res, "You need to be logged in.");
     req.assert('parent', 'Parent is required.').notEmpty();
     req.assert('content', 'Some text is required.').notEmpty();
@@ -456,7 +394,7 @@ client.post('/create', function(req, res) {
                 var test = new Story({
                     shortID: shortID,
                     parent: req.body.parent, // [TODO] check if exists
-                    author: req.user.id,
+                    author: req.user.username,
                     content: req.body.content, // [TODO] validate
                     createdat: Date.now(),
                     changedat: Date.now()
