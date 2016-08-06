@@ -88,25 +88,24 @@ User.find(function(err, stories) {
 });
 
 Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
-User.collection.drop(); //For testion purposes, deletes all previous stories on startup
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
     //if (count == 0) {
-        var parentStory = new Story({
-            shortID: '0',
-            parent: "this should never be a valid parent. kind of a hack", // [TODO] check if exists
-            author: 'Your homedog, ejmejm',
-            content: 'This is the parent story of all parents.', // [TODO] validate
-            createdat: Date.now(),
-            changedat: Date.now()
-        });
+    var parentStory = new Story({
+        shortID: '0',
+        parent: "this should never be a valid parent. kind of a hack", // [TODO] check if exists
+        author: 'Your homedog, ejmejm',
+        content: 'This is the parent story of all parents.', // [TODO] validate
+        createdat: Date.now(),
+        changedat: Date.now()
+    });
 
-        parentStory.save(function(err, parentStory) {
-            if (err) return console.error(err);
-            //console.dir(parentStory);
-        });
-        console.log("Save successful");
+    parentStory.save(function(err, parentStory) {
+        if (err) return console.error(err);
+        //console.dir(parentStory);
+    });
+    console.log("Save successful");
     //}
 });
 
@@ -115,16 +114,16 @@ client.listen(client.get('port'), function() {
 })
 
 client.get('/', function(req, res) {
-	load(0, function(stories, story) {
-    	res.render('index', {
-	        bodyclass: "longer",
-        	story: stories,
-        	currentID: story.shortID,
-			date: timeSince(story.changedat),
-			ISO8601: story.changedat.toISOString(),
-			views: story.views,
-			siblings: story.siblings
-    	});
+    load(0, function(stories, story) {
+        res.render('index', {
+            bodyclass: "longer",
+            story: stories,
+            currentID: story.shortID,
+            date: timeSince(story.changedat),
+            ISO8601: story.changedat.toISOString(),
+            views: story.views,
+            siblings: story.siblings
+        });
     });
     //should return HTML
 });
@@ -143,31 +142,40 @@ function getParentStory(newStory, storyArray, callback, render) {
         });
     } else {
         storyArray.unshift(newStory);
-		render();
+        render();
     }
 }
 
 function load(shortid, complete, fail) {
-	mongoose.model('Story').findOne({
+    mongoose.model('Story').findOne({
         shortID: shortid
     }, function(err, story) {
-        if (!err && story !== null) {8
-			Story.update({ shortID: shortid },
-				{ $set: { views: story.views + 1 }},
-				{ upsert: true },
-				function(err, st){});
+        if (!err && story !== null) {
+            8
+            Story.update({
+                    shortID: shortid
+                }, {
+                    $set: {
+                        views: story.views + 1
+                    }
+                }, {
+                    upsert: true
+                },
+                function(err, st) {});
             var stories = [];
             var newStory = story;
-            getParentStory(newStory, stories, getParentStory, function(){
-				Story.count({parent: story.parent}, function(err, siblingCount) {
-					if(!err){
-						story.siblings = siblingCount;
-						complete(stories, story);
-					}else{
-						console.log('ERROR: Could not find siblings of story ' + story.shortID);
-					}
-				});
-			});
+            getParentStory(newStory, stories, getParentStory, function() {
+                Story.count({
+                    parent: story.parent
+                }, function(err, siblingCount) {
+                    if (!err) {
+                        story.siblings = siblingCount;
+                        complete(stories, story);
+                    } else {
+                        console.log('ERROR: Could not find siblings of story ' + story.shortID);
+                    }
+                });
+            });
         } else {
             console.log('ERROR: Story with shortID ' + shortid + ' not found');
             fail();
@@ -176,55 +184,59 @@ function load(shortid, complete, fail) {
 }
 
 client.get('/story/:id', function(req, res) {
-	load(req.params.id, function(stories, story) {
-    	res.render('index', {
-	        bodyclass: "longer",
-        	story: stories,
-        	currentID: story.shortID,
-			date: timeSince(story.changedat),
-			ISO8601: story.changedat.toISOString(),
-			views: story.views,
-			siblings: story.siblings
-    	});
+    load(req.params.id, function(stories, story) {
+        res.render('index', {
+            bodyclass: "longer",
+            story: stories,
+            currentID: story.shortID,
+            date: timeSince(story.changedat),
+            ISO8601: story.changedat.toISOString(),
+            views: story.views,
+            siblings: story.siblings
+        });
     }, function() {
-    	res.status(404);
-	    res.render('404', {
-	        title: "Page not found"
-	    });
+        res.status(404);
+        res.render('404', {
+            title: "Page not found"
+        });
     });
 });
 
 client.get('/next', function(req, res) {
-	req.assert('parent', 'Parent id is required.').notEmpty();
+    req.assert('parent', 'Parent id is required.').notEmpty();
     validateFields(req, res, function() {
-	    mongoose.model('Story').findOne({
-	        'parent': req.query.parent,
-	        'author': req.query.author
-	    }, function(err, docs) {
-	        if (!err && docs !== null) {
-	            res.json([Math.floor(Math.random() * docs.length)]);
-	            console.log("something should happen");
-                console.log(docs);
-	        } else if (!err && docs === null) {
-	            mongoose.model('Story').findOne({
-	                'parent': req.query.parent // [TODO] randomization
-	            }, function(err, docs) {
-	                if (!err && docs !== null) {
-	                	// [TODO] show relevant content
-	                	completeRequest(req, res, false, "story/"+docs.shortID, docs);
-	                    //res.json([Math.floor(Math.random() * docs.length)]);
-	                } else if (!err && docs === null) {
-	                    failRequest(req, res, "No children.");
-	                } else {
-	                    console.log('ERROR: Story with parentID ' + req.query.parent + ' not found');
-	                    failRequest(req, res, "Invalid parent ID.");
-	                }
-	            });
-	        } else {
-	            console.log('ERROR: Story with shortID ' + req.query.id + ' not found');
-	            failRequest(req, res, "Invalid parent ID.");
-	        }
-	    });
+        Story.find({
+            'parent': req.query.parent,
+            'author': req.query.author
+        }, function(err, docs) {
+            console.log(docs);
+            if (!err && docs.length !== 0) {
+                var random = Math.floor(Math.random() * docs.length);
+                var dock = docs[random];
+
+                console.log(dock);
+                completeRequest(req, res, false, "story/" + dock.shortID, dock);
+            } else if (!err && docs.length === 0) {
+                Story.find({
+                    'parent': req.query.parent // [TODO] randomization
+                }, function(err, docs) {
+                    if (!err && docs.length !== 0) {
+                        // [TODO] show relevant content
+                        var random = Math.floor(Math.random() * docs.length);
+                        var dock = docs[random];
+                        completeRequest(req, res, false, "story/" + dock.shortID, dock);
+                    } else if (!err && docs.length === 0) {
+                        failRequest(req, res, "No children.");
+                    } else {
+                        console.log('ERROR: Story with parentID ' + req.query.parent + ' not found');
+                        failRequest(req, res, "Invalid parent ID.");
+                    }
+                });
+            } else {
+                console.log('ERROR: Story with shortID ' + req.query.id + ' not found');
+                failRequest(req, res, "Invalid parent ID.");
+            }
+        });
     });
 });
 
@@ -232,22 +244,22 @@ client.post('/jump', function(req, res) { // not sure about url, should it be ju
     req.assert('parent', 'Parent id is required.').notEmpty();
     validateFields(req, res, function() {
         var parameters = {
-	        parent: req.body.parent
-	    };
-	    if (req.body.sameauthor) parameters.author = req.body.author; // should be parent author ID
-	    User.find(parameter, function(err, stories) {
-	        if (err) {
-	            return failRequest(req, res, "Error, try again later!");
-	        }
-	        if (stories.length == 1) {
-	            return failRequest(req, res, "No stories to jump to!");
-	        }
-	        var story;
-	        do {
-	            story = stories[Math.floor(Math.random() * stories.length)];
-	        } while (story.shortID == req.body.shortID);
-	        completeRequest(req, res, story, "/story/" + story.shortID);
-	    });
+            parent: req.body.parent
+        };
+        if (req.body.sameauthor) parameters.author = req.body.author; // should be parent author ID
+        User.find(parameter, function(err, stories) {
+            if (err) {
+                return failRequest(req, res, "Error, try again later!");
+            }
+            if (stories.length == 1) {
+                return failRequest(req, res, "No stories to jump to!");
+            }
+            var story;
+            do {
+                story = stories[Math.floor(Math.random() * stories.length)];
+            } while (story.shortID == req.body.shortID);
+            completeRequest(req, res, story, "/story/" + story.shortID);
+        });
     });
 });
 
@@ -363,7 +375,7 @@ function failRequest(req, res, errors) {
 }
 
 client.post('/create', function(req, res) {
-	/*
+    /*
     if (!req.user) {
         req.flash("error", "You need to be logged in.");
         res.redirect(req.header('Referer') || '/');
