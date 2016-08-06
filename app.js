@@ -240,13 +240,13 @@ client.get('/next', function(req, res) {
     });
 });
 
-client.post('/jump', function(req, res) { // not sure about url, should it be just "jump"?
+client.get('/jump', function(req, res) { // not sure about url, should it be just "jump"?
     req.assert('parent', 'Parent id is required.').notEmpty();
     validateFields(req, res, function() {
         var parameters = {
-            parent: req.body.parent
+            parent: req.query.parent
         };
-        if (req.body.sameauthor) parameters.author = req.body.author; // should be parent author ID
+        if (req.query.sameauthor) parameters.author = req.query.author; // should be parent author ID
         User.find(parameter, function(err, stories) {
             if (err) {
                 return failRequest(req, res, "Error, try again later!");
@@ -257,19 +257,19 @@ client.post('/jump', function(req, res) { // not sure about url, should it be ju
             var story;
             do {
                 story = stories[Math.floor(Math.random() * stories.length)];
-            } while (story.shortID == req.body.shortID);
+            } while (story.shortID == req.query.shortID);
             completeRequest(req, res, story, "/story/" + story.shortID);
         });
     });
 });
 
-client.post('/star', function(req, res) {
+client.get('/star', function(req, res) {
     var temp_err = "";
     User.update({
             username: req.user.username
         }, {
             $push: {
-                favs: req.body.id
+                favs: req.query.id
             }
         }, {
             safe: true,
@@ -289,13 +289,13 @@ client.post('/star', function(req, res) {
     }
 });
 
-client.post('/unstar', function(req, res) {
+client.get('/unstar', function(req, res) {
     var temp_err = "";
     User.update({
             username: req.user.username
         }, {
             $pull: {
-                favs: req.body.id
+                favs: req.query.id
             }
         }, {
             safe: true,
