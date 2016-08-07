@@ -240,13 +240,13 @@ client.get('/next', function(req, res) {
 	});
 });
 
-client.post('/jump', function(req, res) { // not sure about url, should it be just "jump"?
+client.get('/jump', function(req, res) { // not sure about url, should it be just "jump"?
 	req.assert('parent', 'Parent id is required.').notEmpty();
 	validateFields(req, res, function() {
 		var parameters = {
-			parent: req.body.parent
+			parent: req.query.parent
 		};
-		if (req.body.sameauthor) parameters.author = req.body.author; // should be parent author ID
+		if (req.query.sameauthor) parameters.author = req.query.author; // should be parent author ID
 		User.find(parameter, function(err, stories) {
 			if (err) {
 				return failRequest(req, res, "Error, try again later!");
@@ -263,13 +263,13 @@ client.post('/jump', function(req, res) { // not sure about url, should it be ju
 	});
 });
 
-client.post('/star', function(req, res) {
+client.get('/star', function(req, res) {
 	var temp_err = "";
 	User.update({
 			username: req.user.username
 		}, {
 			$push: {
-				favs: req.body.id
+				favs: req.query.id
 			}
 		}, {
 			safe: true,
@@ -277,6 +277,7 @@ client.post('/star', function(req, res) {
 		},
 		function(err, model) {
 			temp_err += err + " "; // [TODO] consider array
+		console.log(err);
 		}
 	);
 	if (req.xhr) {
@@ -285,7 +286,7 @@ client.post('/star', function(req, res) {
 		});
 	} else {
 		if (temp_err) req.flash("error", "Error: Try again later");
-		res.redirect("/" + req.params.id);
+		res.redirect("/story/" + req.query.id);
 	}
 });
 
@@ -295,7 +296,7 @@ client.post('/unstar', function(req, res) {
 			username: req.user.username
 		}, {
 			$pull: {
-				favs: req.body.id
+				favs: req.query.id
 			}
 		}, {
 			safe: true,
@@ -311,7 +312,7 @@ client.post('/unstar', function(req, res) {
 		});
 	} else {
 		if (temp_err) res.flash("error", "Error: Try again later");
-		res.redirect("/story/" + req.params.id);
+		res.redirect("/story/" + req.query.id);
 	}
 });
 
