@@ -32,7 +32,7 @@ body, button, input, textarea {
 	}
 }
 
-button, input, textarea {
+button, input, textarea, #actions > a {
 	.border-radius;
 	padding: @pad;
 	outline: none;
@@ -55,7 +55,7 @@ button, input, textarea {
 	}
 }
 
-button {
+button, #actions > a {
 	cursor: pointer;
 	position: relative;
 	&:active:after, &:active > span:after {
@@ -423,7 +423,7 @@ header {
 }
 
 .toolbar {
-	button {
+	button, > a {
 		padding: @pad;
 		margin-right: -@pad;
 		span {
@@ -453,7 +453,7 @@ header {
 	display: flex;
 	border: 1px solid;
 	.border-radius;
-	button {
+	> a, button {
 		padding: @pad;
 		display: block;
 		border-radius: 0;
@@ -571,57 +571,6 @@ header {
 	}
 }
 
-#navigation {
-	display: none;
-	position: fixed;
-	z-index: 10;
-	bottom: 25px;
-	left: 50%;
-	font-size: 0;
-	width: 200px;
-	margin-left: -100px;
-	text-align: center;
-	i {
-		font-size: 20px;
-	}
-	button {
-		display: inline-block;
-		color: white;
-		font-size: 0;
-		border: 0;
-		padding: 0;
-	}
-	.jump, .write {
-		background: red;
-		width: 50%;
-		height: 40px;
-		border-radius: 5px;
-		i {
-			padding: 10px;
-		}
-	}
-	.continue {
-		background: green;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		border-radius: 99px;
-		height: 60px;
-		width: 60px;
-		i {
-			font-size: 30px;
-			padding: 15px;
-		}
-	}
-	.jump i {
-		padding-right: 30px;
-	}
-	.write i {
-		padding-left: 30px;
-	}
-}
-
 label {
 	display: block;
 }
@@ -667,9 +616,14 @@ footer {
 	text-align: center;
 	font-size: 0.9em;
 	opacity: 0.5;
-	.links a {
+	.links a, #userdropdown a {
 		display: inline-block;
 		margin-right: 0.5em;
+	}
+	#userdropdown {
+		.darktoggle div {
+			display: none;
+		}
 	}
 }
 

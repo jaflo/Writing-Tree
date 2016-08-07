@@ -56,7 +56,16 @@ $(".darktoggle").click(function(e) {
 	e.preventDefault();
 });
 
-$("#navigation .continue, #actions .continue").click(function() {
+$("#actions > a").replaceWith(function() {
+	return $("<button />")
+		.attr("class", $(this).attr("class"))
+		.attr("title", $(this).attr("title"))
+		.append($(this).contents());
+});
+
+$("footer #userdropdown").appendTo("header > div");
+
+$("#actions .continue").click(function(e) {
 	if (!animating) {
 		$.get("/next", {
 			parent: $("#editor [name=parent]").val()
@@ -78,6 +87,7 @@ $("#navigation .continue, #actions .continue").click(function() {
 			}
 		}, "json");
 	}
+	e.preventDefault();
 });
 
 $(window).scroll(function() {
@@ -160,7 +170,7 @@ function cleanupStory() {
 	$(".part").removeClass("pseudo-last").show();
 }
 
-$("#navigation .jump, #actions .jump").click(function() {
+$("#actions .jump").click(function(e) {
 	if (!animating) {
 		var nextText = sample(),
 			piece = makePart(nextText).removeClass("hidden").addClass("exitright"),
@@ -183,6 +193,7 @@ $("#navigation .jump, #actions .jump").click(function() {
 			animating = false;
 		}, 350);
 	}
+	e.preventDefault();
 });
 
 $("#actions .star").click(function() {
