@@ -2,13 +2,18 @@
 	body {
 		font-size: 12pt;
 	}
-	html, body, header, header a {
+	body,
+	header,
+	header a,
+	html {
 		background: white !important;
 		color: black !important;
 		border: 0;
 		padding: 0;
 	}
-	header > div, main, footer {
+	footer,
+	header > div,
+	main {
 		padding: 0;
 		max-width: none !important;
 	}
@@ -17,7 +22,14 @@
 		filter: none !important;
 		margin-bottom: @pad;
 	}
-	#search, #introduction, #navigation, #currentinfo, #actions, #editor, footer .links, #user {
+	#actions,
+	#currentinfo,
+	#editor,
+	#introduction,
+	#navigation,
+	#search,
+	#user,
+	footer .links {
 		display: none;
 	}
 	#story .info {

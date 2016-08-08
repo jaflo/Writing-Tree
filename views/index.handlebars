@@ -1,62 +1,63 @@
-<div id="introduction">This is some introductory text that explains the site. You can use the U, I, O, and P buttons on your keyboard to continue, star, write, and jump respectively. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</div>
+<div id="introduction">This is some introductory text that explains the site. You can use the U, I, O, and P buttons on your keyboard to continue, star, write, and jump respectively. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur
+	magni dolores eos qui ratione voluptatem sequi nesciunt.</div>
 {{#if story}}
-<div id="story">
-	{{#each story}}
-	<div class="part" id="part-{{shortID}}">
-		<div class="content">{{content}}</div>
-		<div class="info">
-			by <a href="/user/{{author}}">{{author}}</a>
-			<div class="right">
-				<a href="/story/{{shortID}}" class="rewind">rewind</a>
+	<div id="story">
+		{{#each story}}
+			<div class="part" id="part-{{shortID}}">
+				<div class="content">{{content}}</div>
+				<div class="info">
+					by <a href="/user/{{author}}">{{author}}</a>
+					<div class="right">
+						<a href="/story/{{shortID}}" class="rewind">rewind</a>
+					</div>
+				</div>
 			</div>
-		</div>
+		{{/each}}
 	</div>
-	{{/each}}
-</div>
-<div id="spacer"></div>
-<div id="currentinfo">
-	<span class="stars" title="Favorites">
+	<div id="spacer"></div>
+	<div id="currentinfo">
+		<span class="stars" title="Favorites">
 		<i class="fa fa-star-o" aria-hidden="true"></i>
 		<span>10</span>
-	</span>
-	<span class="possiblities" title="Alternate continuations">
+		</span>
+		<span class="possiblities" title="Alternate continuations">
 		<i class="fa fa-clone" aria-hidden="true"></i>
 		<span>{{siblings}}</span>
-	</span>
-	<span class="views" title="Views">
+		</span>
+		<span class="views" title="Views">
 		<i class="fa fa-eye" aria-hidden="true"></i>
 		<span>{{views}}</span>
-	</span>
-	<span class="age" title="Age">
+		</span>
+		<span class="age" title="Age">
 		<i class="fa fa-clock-o" aria-hidden="true"></i>
 		<time datetime="{{ISO8601}}">{{date}}</time>
 	</span>
-</div>
-<div id="actions" class="toolbar">
-	<a href="/star?id={{currentID}}" class="star" title="Favorite">
-		<span>
+	</div>
+	<div id="actions" class="toolbar">
+		<a href="/star?id={{currentID}}" class="star" title="Favorite">
+			<span>
 			Star
 			<i class="fa fa-star-o" aria-hidden="true"></i>
 		</span>
-	</a>
-	<a href="/jump?parent={{currentID}}" class="jump" title="Alternate continuation">
-		<span>
+		</a>
+		<a href="/jump?parent={{currentID}}" class="jump" title="Alternate continuation">
+			<span>
 			Jump
 			<i class="fa fa-repeat" aria-hidden="true"></i>
 		</span>
-	</a>
-	<a href="/next?parent={{currentID}}" class="main continue"><span>Continue</span></a>
-</div>
-<form action="/create" id="editor" method="post">
-	<label for="content" class="overlay">or write your own</label>
-	<input type="hidden" name="parent" value="{{currentID}}" />
-	<textarea name="content" cols="30" rows="10" id="content"></textarea>
-	<div class="toolbar">
-		<button type="button" class="preview"><span>Preview</span></button>
-		<button type="submit" class="main publish" title="Submit this as continuation to the story"><span>Publish</span></button>
+		</a>
+		<a href="/next?parent={{currentID}}" class="main continue"><span>Continue</span></a>
 	</div>
-</form>
-<div id="tester"></div>
+	<form action="/create" id="editor" method="post">
+		<label for="content" class="overlay">or write your own</label>
+		<input type="hidden" name="parent" value="{{currentID}}" />
+		<textarea name="content" cols="30" rows="10" id="content"></textarea>
+		<div class="toolbar">
+			<button type="button" class="preview"><span>Preview</span></button>
+			<button type="submit" class="main publish" title="Submit this as continuation to the story"><span>Publish</span></button>
+		</div>
+	</form>
+	<div id="tester"></div>
 {{else}}
-<div class="empty">No stories.</div>
+	<div class="empty">No stories.</div>
 {{/if}}

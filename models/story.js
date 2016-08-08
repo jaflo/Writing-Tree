@@ -41,15 +41,15 @@ var storySchema = mongoose.Schema({
         required: true,
     },
     views: {
-		type: Number,
-		required: true,
-		default: 0
+        type: Number,
+        required: true,
+        default: 0
     },
-	starcount: {
-		type: Number,
-		required: true,
-		default: 0
-	}
+    starcount: {
+        type: Number,
+        required: true,
+        default: 0
+    }
 });
 
 var Story = mongoose.model('Story', storySchema);
