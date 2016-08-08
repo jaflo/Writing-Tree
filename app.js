@@ -151,7 +151,6 @@ function load(shortid, complete, fail) {
 		shortID: shortid
 	}, function(err, story) {
 		if (!err && story !== null) {
-			8
 			Story.update({
 					shortID: shortid
 				}, {
@@ -268,52 +267,83 @@ client.get('/star', function(req, res) {
 	User.update({
 			username: req.user.username
 		}, {
-			$push: {
-				favs: req.query.id
+			$push: { 
+				favs: req.query.id 
 			}
 		}, {
-			safe: true,
 			upsert: true
 		},
-		function(err, model) {
-			temp_err += err + " "; // [TODO] consider array
-		console.log(err);
+		function(err, user) {
+			if (err) {
+				failRequest(req, res, "Unable to star, try again later");
+				console.log(err);
+			}
+			else {
+				console.log(user);
+				Story.update({
+					shortID: req.query.id
+				}, {
+					$inc: {
+						starcount: 1
+					}
+				}, {
+					upsert: true
+				},
+				function(err, story) {
+					if(err) {
+						failRequest(req, res, "Unable to star, try again later");
+						console.log(err);
+					}
+					else {
+						console.log(story);
+						completeRequest(req, res, "Starred", "/story/" + req.query.shortid);
+					}
+				});
+			}
 		}
 	);
-	if (req.xhr) {
-		res.json({
-			status: temp_err || "success"
-		});
-	} else {
-		if (temp_err) req.flash("error", "Error: Try again later");
-		res.redirect("/story/" + req.query.id);
-	}
 });
 
-client.post('/unstar', function(req, res) {
+client.get('/unstar', function(req, res) {
 	var temp_err = "";
 	User.update({
 			username: req.user.username
 		}, {
-			$pull: {
-				favs: req.query.id
+			$pull: { 
+				favs: req.query.id 
 			}
 		}, {
-			safe: true,
 			upsert: true
 		},
-		function(err, model) {
-			temp_err += err + " "; // [TODO] consider array
+		function(err, user) {
+			if (err) {
+				failRequest(req, res, "Unable to star, try again later");
+				console.log(err);
+			}
+			else {
+				console.log(user);
+				Story.update({
+					shortID: req.query.id
+				}, {
+					$inc: {
+						starcount: -1
+					}
+				}, {
+					upsert: true
+				},
+				function(err, story) {
+					if(err) {
+						failRequest(req, res, "Unable to star, try again later");
+						console.log(err);
+					}
+					else {
+						console.log(story);
+						completeRequest(req, res, "Starred", "/story/" + req.query.shortid);
+					}
+				});
+			}
 		}
 	);
-	if (req.xhr) {
-		res.json({
-			status: temp_err || "success"
-		});
-	} else {
-		if (temp_err) res.flash("error", "Error: Try again later");
-		res.redirect("/story/" + req.query.id);
-	}
 });
 
 
@@ -326,7 +356,7 @@ client.post('/flag', function(req, res) {
 		createdat: Date.now(),
 		status: "unresolved"
 	});
-	newFlage.save(function(err) {
+	newFlag.save(function(err) {
 		if (err) throw err;
 	});
 });
