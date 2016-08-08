@@ -357,12 +357,28 @@ client.post('/flag', function(req, res) {
     });
 });
 
-client.post('/placeholder-shortID/edit', function(req, res) {
+client.post('/:id/edit', function(req, res) {
 
 });
 
-client.post('/placeholder-shortID/remove', function(req, res) {
-
+client.post('/:id/remove', function(req, res) {
+    validateFields(req, res, function() {
+        Story.find({
+            'parent': req.query.parent
+        }, function(err, docs) {
+            console.log(docs);
+            if (!err && docs.length !== 0) {
+                console.log("Document " + req.query.parent + " cannot be deleted because it has children.");
+            } else if (!err && docs.length === 0) {
+                Story.find({
+                    'parent': req.query.parent
+                }).remove();
+            } else {
+                console.log('ERROR: Story with parentID ' + req.query.parent + ' not found');
+                failRequest(req, res, "Invalid parent ID.");
+            }
+        });
+    });
 });
 
 function validateFields(req, res, callback) {
