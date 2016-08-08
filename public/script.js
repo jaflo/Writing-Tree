@@ -197,12 +197,16 @@ $("#actions .jump").click(function(e) {
 });
 
 $("#actions .star").click(function() {
-	if ($(this).hasClass("starred")) {
-		// unstar
-	} else {
-		// star
-	}
-	$(this).toggleClass("starred").find("i").toggleClass("fa-star-o fa-star");
+	$.post($(this).hasClass("starred") ? "/unstar" : "/star", {
+		id: $("#editor [name=parent]").val()
+	}).done(function(res) {
+		console.log(res);
+		if (res.status == "success") {
+			$(this).toggleClass("starred", res.data.star)
+				.find("i").removeClass("fa-star-o fa-star")
+				.addClass(res.data.star ? "fa-star" : "fa-star-o");
+		}
+	}, "json");
 });
 
 function measureHeight(content) {

@@ -3,3 +3,6 @@ node_modules
 
 #ignore compiled output from LESS
 public/styles.css
+
+#ignore zed editor state file
+.zedstate
