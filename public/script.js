@@ -197,7 +197,7 @@ $("#actions .jump").click(function(e) {
 });
 
 $("#actions .star").click(function() {
-    $.post($(this).hasClass("starred") ? "/unstar" : "/star", {
+    $.get($(this).hasClass("starred") ? "/unstar" : "/star", {
         id: $("#editor [name=parent]").val()
     }).done(function(res) {
         console.log(res);
