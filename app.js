@@ -525,8 +525,22 @@ client.get('/user/username/mine', function(req, res) {
 	//should return HTML
 });
 
-client.get('/user/username', function(req, res) {
-	//should return HTML
+client.get('/user/:usr', function(req, res) {
+	User.findOne({username: req.params.usr}, function(err, user){
+		if(user) {
+			Story.find({author: user.username}, function(err, stories){
+				console.log(user);
+				res.render("user", {
+					user: user,
+					username: user.username,
+					story: stories
+				});
+			});
+		}
+		else {
+			res.redirect("404");
+		}
+	});
 });
 
 client.post('/user/username/preferences', function(req, res) {
