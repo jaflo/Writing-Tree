@@ -304,91 +304,101 @@ client.get('/jump', function(req, res) {
 });
 
 client.get('/star', function(req, res) {
-	User.findOne({username: req.user.username}, function(err, usr){
-		if(!usr.starred.includes(req.query.id)) {
-			User.update({
-					username: req.user.username
-				}, {
-					$push: {
-						starred: req.query.id
+	if(req.user) {
+		User.findOne({username: req.user.username}, function(err, usr){
+			if(!usr.starred.includes(req.query.id)) {
+				User.update({
+						username: req.user.username
+					}, {
+						$push: {
+							starred: req.query.id
+						}
+					}, {
+						upsert: true
+					},
+					function(err, userinfo) {
+						if (err) {
+							failRequest(req, res, "Unable to star, try again later");
+							console.log(err);
+						} else {
+							Story.update({
+									shortID: req.query.id
+								}, {
+									$inc: {
+										starcount: 1
+									}
+								}, {
+									upsert: true
+								},
+								function(err, storyinfo) {
+									if (err) {
+										failRequest(req, res, "Unable to star, try again later");
+										console.log(err);
+									} else {
+										completeRequest(req, res, {starred: true}, "back", "Starred");
+									}
+								});
+						}
 					}
-				}, {
-					upsert: true
-				},
-				function(err, userinfo) {
-					if (err) {
-						failRequest(req, res, "Unable to star, try again later");
-						console.log(err);
-					} else {
-						Story.update({
-								shortID: req.query.id
-							}, {
-								$inc: {
-									starcount: 1
-								}
-							}, {
-								upsert: true
-							},
-							function(err, storyinfo) {
-								if (err) {
-									failRequest(req, res, "Unable to star, try again later");
-									console.log(err);
-								} else {
-									completeRequest(req, res, {starred: true}, "back", "Starred");
-								}
-							});
-					}
-				}
-			);
-		}
-		else {
-			failRequest(req, res, "Story already starred");
-		}
-	});
+				);
+			}
+			else {
+				failRequest(req, res, "Story already starred");
+			}
+		});
+	}
+	else {
+		failRequest(req, res, "Log in to star");
+	}
 });
 
 client.get('/unstar', function(req, res) {
-	User.findOne({username: req.user.username}, function(err, usr){
-		if(usr.starred.includes(req.query.id)) {
-			User.update({
-					username: req.user.username
-				}, {
-					$pull: {
-						starred: req.query.id
+	if(req.user) {
+		User.findOne({username: req.user.username}, function(err, usr){
+			if(usr.starred.includes(req.query.id)) {
+				User.update({
+						username: req.user.username
+					}, {
+						$pull: {
+							starred: req.query.id
+						}
+					}, {
+						upsert: true
+					},
+					function(err, userinfo) {
+						if (err) {
+							failRequest(req, res, "Unable to unstar, try again later");
+							console.log(err);
+						} else {
+							Story.update({
+									shortID: req.query.id
+								}, {
+									$inc: {
+										starcount: -1
+									}
+								}, {
+									upsert: true
+								},
+								function(err, storyinfo) {
+									if (err) {
+										failRequest(req, res, "Unable to unstar, try again later");
+										console.log(err);
+									} else {
+										completeRequest(req, res, {starred: false}, "back", "Unstarred");
+									}
+								});
+						}
 					}
-				}, {
-					upsert: true
-				},
-				function(err, userinfo) {
-					if (err) {
-						failRequest(req, res, "Unable to unstar, try again later");
-						console.log(err);
-					} else {
-						Story.update({
-								shortID: req.query.id
-							}, {
-								$inc: {
-									starcount: -1
-								}
-							}, {
-								upsert: true
-							},
-							function(err, storyinfo) {
-								if (err) {
-									failRequest(req, res, "Unable to unstar, try again later");
-									console.log(err);
-								} else {
-									completeRequest(req, res, {starred: false}, "back", "Unstarred");
-								}
-							});
-					}
-				}
-			);
-		}
-		else {
-			failRequest(req, res, "Story not starred");
-		}
-	});
+				);
+			}
+			else {
+				failRequest(req, res, "Story not starred");
+			}
+		});
+	}
+	else {
+		failRequest(req, res, "Log in to unstar");
+	}
 });
 
 client.post('/flag', function(req, res) {
