@@ -221,11 +221,12 @@ $("#actions .star").click(function() {
 	$.get($(this).hasClass("starred") ? "/unstar" : "/star", {
 		id: $("#editor [name=parent]").val()
 	}).done(function(res) {
-		console.log(res);
 		if (res.status == "success") {
-			$(this).toggleClass("starred", res.data.star)
+			console.log(res.data.starred);
+			$("#actions .star").toggleClass("starred", res.data.starred)
 				.find("i").removeClass("fa-star-o fa-star")
-				.addClass(res.data.star ? "fa-star" : "fa-star-o");
+				.addClass(res.data.starred ? "fa-star" : "fa-star-o")
+				.attr("title", res.data.starred ? "Unstar" : "Star");
 		}
 	}, "json");
 });

@@ -16,35 +16,47 @@
 	</div>
 	<div id="spacer"></div>
 	<div id="currentinfo">
-		<span class="stars" title="Favorites">
-		<i class="fa fa-star-o" aria-hidden="true"></i>
-		<span>10</span>
+		<span class="stars" title="Stars">
+			{{#if starred}}
+			<i class="fa fa-star" aria-hidden="true"></i>
+			{{else}}
+			<i class="fa fa-star-o" aria-hidden="true"></i>
+			{{/if}}
+			<span>10</span>
 		</span>
 		<span class="possiblities" title="Alternate continuations">
-		<i class="fa fa-clone" aria-hidden="true"></i>
-		<span>{{siblings}}</span>
+			<i class="fa fa-clone" aria-hidden="true"></i>
+			<span>{{siblings}}</span>
 		</span>
 		<span class="views" title="Views">
-		<i class="fa fa-eye" aria-hidden="true"></i>
-		<span>{{views}}</span>
+			<i class="fa fa-eye" aria-hidden="true"></i>
+			<span>{{views}}</span>
 		</span>
 		<span class="age" title="Age">
-		<i class="fa fa-clock-o" aria-hidden="true"></i>
-		<time datetime="{{ISO8601}}">{{date}}</time>
-	</span>
+			<i class="fa fa-clock-o" aria-hidden="true"></i>
+			<time datetime="{{ISO8601}}">{{date}}</time>
+		</span>
 	</div>
 	<div id="actions" class="toolbar">
-		<a href="/star?id={{currentID}}" class="star" title="Favorite">
+		{{#if starred}}
+		<a href="/unstar?id={{currentID}}" class="star starred" title="Unstar">
+		{{else}}
+		<a href="/star?id={{currentID}}" class="star" title="Star">
+		{{/if}}
 			<span>
-			Star
-			<i class="fa fa-star-o" aria-hidden="true"></i>
-		</span>
+				Star
+				{{#if starred}}
+				<i class="fa fa-star" aria-hidden="true"></i>
+				{{else}}
+				<i class="fa fa-star-o" aria-hidden="true"></i>
+				{{/if}}
+			</span>
 		</a>
 		<a href="/jump?parent={{currentID}}" class="jump" title="Alternate continuation">
 			<span>
-			Jump
-			<i class="fa fa-repeat" aria-hidden="true"></i>
-		</span>
+				Jump
+				<i class="fa fa-repeat" aria-hidden="true"></i>
+			</span>
 		</a>
 		<a href="/next?parent={{currentID}}" class="main continue"><span>Continue</span></a>
 	</div>
