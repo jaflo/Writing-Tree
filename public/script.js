@@ -82,8 +82,8 @@ $("#actions .continue").click(function(e) {
 						scrollTop: $("#story .part").last().offset().top - 60
 					}, 300, "swing");
 				}
-			} else if (res.message == "No children.") {
-				alert("No more content");
+			} else {
+				flash(res.message);
 			}
 		}, "json");
 	}
@@ -141,7 +141,7 @@ function addNew(nextText, data) {
 			stateChange(JSON.parse($(this).attr("data-state")));
 			e.preventDefault();
 		});
-		syncState(state)
+		syncState(state);
 		$("#story .part").outerWidth();
 		$("#story .part").removeClass("hidden").find("a.rewind").attr("data-state", JSON.stringify(state));
 		$("#currentinfo").removeClass("fade");
@@ -172,29 +172,50 @@ function cleanupStory() {
 
 $("#actions .jump").click(function(e) {
 	if (!animating) {
-		var nextText = sample(),
-			piece = makePart(nextText).removeClass("hidden").addClass("exitright"),
-			contentHeight = measureHeight(piece),
-			spacerHeight = $("#spacer").height(),
-			targetWidth = $("#spacer").height($("#story .part").last().outerHeight()).outerWidth();
-		var currHeight = $("#story .part").last().width(targetWidth).addClass("exitleft").outerHeight();
-		cleanupStory();
-		$("#spacer").addClass("animate").outerWidth();
-		$("#spacer").height(contentHeight).css("margin-top", -currHeight + "px");
-		$("#currentinfo").addClass("fade");
-		animating = true;
-		setTimeout(function() {
-			$("#story .part").last().replaceWith(piece).removeClass("exitleft");
-			$("#spacer").removeClass("animate").outerWidth();
-			$("#spacer").height(0).css("margin-top", "");
-			$("#story .part").outerWidth();
-			$("#story .part").removeClass("exitright");
-			$("#currentinfo").removeClass("fade");
-			animating = false;
-		}, 350);
+		$.get("/jump", {
+			parent: $("#editor [name=parent]").val()
+		}).done(function(res) {
+			console.log(res);
+			if (res.status == "success") {
+				var piece = makePart(res.data).removeClass("hidden").addClass("exitright"),
+					contentHeight = measureHeight(piece),
+					spacerHeight = $("#spacer").height(),
+					targetWidth = $("#spacer").height($("#story .part").last().outerHeight()).outerWidth();
+				var currHeight = $("#story .part").last().width(targetWidth).addClass("exitleft").outerHeight();
+				cleanupStory();
+				$("#spacer").addClass("animate").outerWidth();
+				$("#spacer").height(contentHeight).css("margin-top", -currHeight + "px");
+				$("#currentinfo").addClass("fade");
+				animating = true;
+				$("#editor [name=parent]").val(res.data.shortID);
+				var state = {
+					id: res.data.shortID,
+					changedat: res.data.changedat,
+					views: res.data.views
+				};
+				history.pushState(state, "", "/story/" + res.data.shortID);
+				setTimeout(function() {
+					syncState(state);
+					$("#story .part").last().replaceWith(piece).removeClass("exitleft");
+					$("#spacer").removeClass("animate").outerWidth();
+					$("#spacer").height(0).css("margin-top", "");
+					$("#story .part").outerWidth();
+					$("#story .part").removeClass("exitright");
+					$("#currentinfo").removeClass("fade");
+					animating = false;
+				}, 350);
+			} else {
+				flash(res.message);
+			}
+		}, "json");
 	}
 	e.preventDefault();
 });
+
+function flash(message, success) {
+	$(".alert").remove();
+	$("main").prepend($("<div>").addClass(success ? "alert success" : "alert error").text(message));
+}
 
 $("#actions .star").click(function() {
 	$.get($(this).hasClass("starred") ? "/unstar" : "/star", {

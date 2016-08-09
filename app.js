@@ -125,7 +125,7 @@ client.get('/', function(req, res) {
 					ISO8601: story.changedat.toISOString(),
 					views: story.views,
 					siblings: story.siblings,
-					starred: ((user.starred.includes("0"))?true:false)
+					starred: ((user.starred.includes(story.shortID))?true:false)
 				});
 			});
 		});
@@ -201,22 +201,46 @@ function load(shortid, complete, fail) {
 }
 
 client.get('/story/:id', function(req, res) {
-	load(req.params.id, function(stories, story) {
-		res.render('index', {
-			bodyclass: "longer",
-			story: stories,
-			currentID: story.shortID,
-			date: timeSince(story.changedat),
-			ISO8601: story.changedat.toISOString(),
-			views: story.views,
-			siblings: story.siblings
+	if(req.user) {
+		User.findOne({username: req.user.username}, "starred", function(err, user) {
+			load(req.params.id, function(stories, story) {
+				res.render('index', {
+					bodyclass: "longer",
+					story: stories,
+					currentID: story.shortID,
+					date: timeSince(story.changedat),
+					ISO8601: story.changedat.toISOString(),
+					views: story.views,
+					siblings: story.siblings,
+					starred: ((user.starred.includes(story.shortID))?true:false)
+				});
+			}, function() {
+				res.status(404);
+				res.render('404', {
+					title: "Page not found"
+				});
+			});
 		});
-	}, function() {
-		res.status(404);
-		res.render('404', {
-			title: "Page not found"
+	}
+	else {
+		load(req.params.id, function(stories, story) {
+			res.render('index', {
+				bodyclass: "longer",
+				story: stories,
+				currentID: story.shortID,
+				date: timeSince(story.changedat),
+				ISO8601: story.changedat.toISOString(),
+				views: story.views,
+				siblings: story.siblings,
+				starred: false
+			});
+		}, function() {
+			res.status(404);
+			res.render('404', {
+				title: "Page not found"
+			});
 		});
-	});
+	}
 });
 
 client.get('/next', function(req, res) {
@@ -232,7 +256,7 @@ client.get('/next', function(req, res) {
 				var dock = docs[random];
 
 				console.log(dock);
-				completeRequest(req, res, false, "story/" + dock.shortID, dock);
+				completeRequest(req, res, dock, "story/" + dock.shortID);
 			} else if (!err && docs.length === 0) {
 				Story.find({
 					'parent': req.query.parent // [TODO] randomization
@@ -241,7 +265,7 @@ client.get('/next', function(req, res) {
 						// [TODO] show relevant content
 						var random = Math.floor(Math.random() * docs.length);
 						var dock = docs[random];
-						completeRequest(req, res, false, "story/" + dock.shortID, dock);
+						completeRequest(req, res, dock, "story/" + dock.shortID);
 					} else if (!err && docs.length === 0) {
 						failRequest(req, res, "No children.");
 					} else {
@@ -258,104 +282,103 @@ client.get('/next', function(req, res) {
 });
 
 client.get('/jump', function(req, res) { 
-    req.assert('id', 'Error: Story ID is required.').notEmpty();
-    validateFields(req, res, function() {
-        var parameters = {
-            id : req.query.id
-        };
-        if (req.query.sameauthor) parameters.author = req.query.author; // should be parent author ID
-        User.findOne(parameters, function(err, child) {
-            if (err) {
-                return failRequest(req, res, "Error, try again later!");
-            }
-			else {
-				User.find({parent: child.parent}, function(err, stories) {
-					var story;
-					do {
-						story = stories[Math.floor(Math.random()*stories.length)];
-					} while (story.shortID == req.query.id);
-					completeRequest(req, res, "Jumped!", "/story/"+story.shortID);
-				});
-			}
-        });
-    });
+	req.assert('parent', 'Parent id is required.').notEmpty();
+	validateFields(req, res, function() {
+		Story.findOne({
+			'shortID': req.query.parent
+		}, function(err, current) {
+			console.log("current = " + current);
+			Story.find({
+				'parent': current.parent
+			}, function(err, sibs) {
+				console.log("sibs = " + sibs);
+				var sib;
+				do {
+					sib = sibs[Math.floor(Math.random() * sibs.length)];
+				} while (sib.shortID == req.query.parent);
+				console.log("sib = " + sib);
+				completeRequest(req, res, sib, "/story/" + sib.shortID);
+			});
+		});
+	});
 });
 
 client.get('/star', function(req, res) {
-	console.log("Starring...\n");
-    User.update({
-            username: req.user.username
-        }, {
-            $push: {
-                starred: req.query.id
-            }
-        }, {
-            upsert: true
-        },
-        function(err, user) {
-            if (err) {
-                failRequest(req, res, "Unable to star, try again later");
-                console.log(err);
-            } else {
-                Story.update({
-					shortID: req.query.id
-				}, {
-					$inc: {
-						starcount: 1
-					}
-				}, {
-					upsert: true
-				},
-                function(err, story) {
-                    if (err) {
-                        failRequest(req, res, "Unable to star, try again later");
-                        console.log(err);
-                    } else {
-						completeRequest(req, res, "Starred", "/story/" + req.query.shortid, {starred: true});
-                    }
-                });
-            }
-        }
-    );
+	User.update({
+			username: req.user.username
+		}, {
+			$push: {
+				starred: req.query.id
+			}
+		}, {
+			upsert: true
+		},
+		function(err, user) {
+			if (err) {
+				failRequest(req, res, "Unable to star, try again later");
+				console.log(err);
+			} else {
+				console.log(user);
+				Story.update({
+						shortID: req.query.id
+					}, {
+						$inc: {
+							starcount: 1
+						}
+					}, {
+						upsert: true
+					},
+					function(err, story) {
+						if (err) {
+							failRequest(req, res, "Unable to star, try again later");
+							console.log(err);
+						} else {
+							console.log(story);
+							completeRequest(req, res, {starred: true}, "back", "Starred");
+						}
+					});
+			}
+		}
+	);
 });
 
 client.get('/unstar', function(req, res) {
-	console.log("Unstarring...\n");
-    User.update({
-            username: req.user.username
-        }, {
-            $pull: {
-                starred: req.query.id
-            }
-        }, {
-            upsert: true
-        },
-        function(err, user) {
-            if (err) {
-                failRequest(req, res, "Unable to star, try again later");
-                console.log(err);
-            } else {
-                console.log(user);
-                Story.update({
-					shortID: req.query.id
-				}, {
-					$inc: {
-						starcount: -1
-					}
-				}, {
-					upsert: true
-				},
-				function(err, story) {
-					if (err) {
-						failRequest(req, res, "Unable to star, try again later");
-						console.log(err);
-					} else {
-						completeRequest(req, res, "Starred", "/story/" + req.query.shortid, {starred: false});
-					}
-				});
-            }
-        }
-    );
+	User.update({
+			username: req.user.username
+		}, {
+			$pull: {
+				starred: req.query.id
+			}
+		}, {
+			upsert: true
+		},
+		function(err, user) {
+			if (err) {
+				failRequest(req, res, "Unable to unstar, try again later");
+				console.log(err);
+			} else {
+				console.log(user);
+				Story.update({
+						shortID: req.query.id
+					}, {
+						$inc: {
+							starcount: -1
+						}
+					}, {
+						upsert: true
+					},
+					function(err, story) {
+						if (err) {
+							failRequest(req, res, "Unable to unstar, try again later");
+							console.log(err);
+						} else {
+							console.log(story);
+							completeRequest(req, res, {starred: false}, "back", "Unstarred");
+						}
+					});
+			}
+		}
+	);
 });
 
 
@@ -406,7 +429,7 @@ function validateFields(req, res, callback) {
 	}
 }
 
-function completeRequest(req, res, success, redirect, data) {
+function completeRequest(req, res, data, redirect, success) {
 	if (req.xhr) {
 		res.json({
 			status: "success",
@@ -421,6 +444,7 @@ function completeRequest(req, res, success, redirect, data) {
 }
 
 function failRequest(req, res, errors) {
+	if (!errors) console.warn("Please include a user-friendly error message.");
 	if (req.xhr) {
 		res.json({
 			status: "failed",
@@ -468,7 +492,7 @@ client.post('/create', function(req, res) {
 					if (err) return console.error(err);
 					//console.dir(stories);
 				});
-				completeRequest(req, res, "Save successful!", '/story/' + shortID, test);
+				completeRequest(req, res, test, '/story/' + shortID, "Save successful!");
 			}
 		});
 	}
