@@ -214,7 +214,7 @@ client.get('/next', function(req, res) {
 				var dock = docs[random];
 
 				console.log(dock);
-				completeRequest(req, res, false, "story/" + dock.shortID, dock);
+				completeRequest(req, res, dock, "story/" + dock.shortID);
 			} else if (!err && docs.length === 0) {
 				Story.find({
 					'parent': req.query.parent // [TODO] randomization
@@ -223,7 +223,7 @@ client.get('/next', function(req, res) {
 						// [TODO] show relevant content
 						var random = Math.floor(Math.random() * docs.length);
 						var dock = docs[random];
-						completeRequest(req, res, false, "story/" + dock.shortID, dock);
+						completeRequest(req, res, dock, "story/" + dock.shortID);
 					} else if (!err && docs.length === 0) {
 						failRequest(req, res, "No children.");
 					} else {
@@ -293,7 +293,7 @@ client.get('/star', function(req, res) {
 							console.log(err);
 						} else {
 							console.log(story);
-							completeRequest(req, res, "Starred", "/story/" + req.query.shortid);
+							completeRequest(req, res, "/story/" + req.query.shortid);
 						}
 					});
 			}
@@ -333,7 +333,7 @@ client.get('/unstar', function(req, res) {
 							console.log(err);
 						} else {
 							console.log(story);
-							completeRequest(req, res, "Starred", "/story/" + req.query.shortid);
+							completeRequest(req, res, "/story/" + req.query.shortid);
 						}
 					});
 			}
@@ -389,7 +389,7 @@ function validateFields(req, res, callback) {
 	}
 }
 
-function completeRequest(req, res, success, redirect, data) {
+function completeRequest(req, res, data, redirect, success) {
 	if (req.xhr) {
 		res.json({
 			status: "success",
@@ -404,6 +404,7 @@ function completeRequest(req, res, success, redirect, data) {
 }
 
 function failRequest(req, res, errors) {
+	if (!errors) console.warn("Please include a user-friendly error message.");
 	if (req.xhr) {
 		res.json({
 			status: "failed",
@@ -451,7 +452,7 @@ client.post('/create', function(req, res) {
 					if (err) return console.error(err);
 					//console.dir(stories);
 				});
-				completeRequest(req, res, "Save successful!", '/story/' + shortID, test);
+				completeRequest(req, res, test, '/story/' + shortID, "Save successful!");
 			}
 		});
 	}
