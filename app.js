@@ -242,22 +242,21 @@ client.get('/next', function(req, res) {
 client.get('/jump', function(req, res) { // not sure about url, should it be just "jump"?
 	req.assert('parent', 'Parent id is required.').notEmpty();
 	validateFields(req, res, function() {
-		var parameters = {
-			parent: req.query.parent
-		};
-		if (req.query.sameauthor) parameters.author = req.query.author; // should be parent author ID
-		User.find(parameter, function(err, stories) {
-			if (err) {
-				return failRequest(req, res, "Error, try again later!");
-			}
-			if (stories.length == 1) {
-				return failRequest(req, res, "No stories to jump to!");
-			}
-			var story;
-			do {
-				story = stories[Math.floor(Math.random() * stories.length)];
-			} while (story.shortID == req.body.shortID);
-			completeRequest(req, res, story, "/story/" + story.shortID);
+		Story.findOne({
+			'shortID': req.query.parent
+		}, function(err, current) {
+			console.log("current = " + current);
+			Story.find({
+				'parent': current.parent
+			}, function(err, sibs) {
+				console.log("sibs = " + sibs);
+				var sib;
+				do {
+					sib = sibs[Math.floor(Math.random() * sibs.length)];
+				} while (sib.shortID == req.query.parent);
+				console.log("sib = " + sib);
+				completeRequest(req, res, sib, "/story/" + sib.shortID);
+			});
 		});
 	});
 });
