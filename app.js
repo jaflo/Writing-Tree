@@ -88,7 +88,6 @@ User.find(function(err, stories) {
 });
 
 Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
-User.collection.drop(); //For testion purposes, deletes all previous stories on startup
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
@@ -332,7 +331,18 @@ client.get('/jump', function(req, res) {
 						sib = sibs[Math.floor(Math.random() * sibs.length)];
 					} while (sib.shortID == req.query.parent);
 					console.log("sib = " + sib);
-					completeRequest(req, res, sib, "/story/" + sib.shortID);
+					if(req.user) {
+						User.findOne({username: req.user.username}, function(err, usr) {
+							var sibb = sib.toObject();
+							sibb["starred"] = usr.starred.includes(sib.shortID);
+							completeRequest(req, res, sibb, "/story/" + sib.shortID);
+						});
+					}
+					else {
+						var sibb = sib.toObject();
+						sibb["starred"] = false;
+						completeRequest(req, res, sibb, "/story/" + sib.shortID);
+					}
 				}
 				else {
 					failRequest(req, res, "No stories to jump to");
