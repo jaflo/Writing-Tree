@@ -88,6 +88,7 @@ User.find(function(err, stories) {
 });
 
 Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
+User.collection.drop(); //For testion purposes, deletes all previous stories on startup
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
@@ -125,7 +126,7 @@ client.get('/', function(req, res) {
 					ISO8601: story.changedat.toISOString(),
 					views: story.views,
 					siblings: story.siblings,
-					starred: ((user.starred.includes(story.shortID))?true:false)
+					starred: user.starred.includes(story.shortID)
 				});
 			});
 		});
@@ -212,7 +213,7 @@ client.get('/story/:id', function(req, res) {
 					ISO8601: story.changedat.toISOString(),
 					views: story.views,
 					siblings: story.siblings,
-					starred: ((user.starred.includes(story.shortID))?true:false)
+					starred: user.starred.includes(story.shortID)
 				});
 			}, function() {
 				res.status(404);
@@ -252,20 +253,53 @@ client.get('/next', function(req, res) {
 		}, function(err, docs) {
 			console.log(docs);
 			if (!err && docs.length !== 0) {
-				var random = Math.floor(Math.random() * docs.length);
-				var dock = docs[random];
-
-				console.log(dock);
-				completeRequest(req, res, dock, "story/" + dock.shortID);
+				var dock = docs[Math.floor(Math.random() * docs.length)];
+				if(req.user) {
+					User.findOne({username: req.user.username}, function(err, usr){
+						if(err) {
+							failRequest(req, res, "ERROR: Try again later.");
+							console.log(err);
+						}
+						else {
+							var doc = dock.toObject();
+							doc["starred"] = usr.starred.includes(dock.shortID);
+							console.log(doc);
+							completeRequest(req, res, doc, "story/" + dock.shortID);
+						}
+					});
+				}
+				else {
+					var doc = dock.toObject();
+					doc["starred"] = false;
+					console.log(doc);
+					completeRequest(req, res, doc, "story/" + dock.shortID);
+				}
 			} else if (!err && docs.length === 0) {
 				Story.find({
 					'parent': req.query.parent // [TODO] randomization
 				}, function(err, docs) {
 					if (!err && docs.length !== 0) {
-						// [TODO] show relevant content
-						var random = Math.floor(Math.random() * docs.length);
-						var dock = docs[random];
-						completeRequest(req, res, dock, "story/" + dock.shortID);
+						var dock = docs[Math.floor(Math.random() * docs.length)];
+						if(req.user) {
+							User.findOne({username: req.user.username}, function(err, usr){
+								if(err) {
+									failRequest(req, res, "ERROR: Try again later.");
+									console.log(err);
+								}
+								else {
+									var doc = dock.toObject();
+									doc["starred"] = usr.starred.includes(dock.shortID);
+									console.log(doc);
+									completeRequest(req, res, doc, "story/" + dock.shortID);
+								}
+							});
+						}
+						else {
+							var doc = dock.toObject();
+							doc["starred"] = false;
+							console.log(doc);
+							completeRequest(req, res, doc, "story/" + dock.shortID);
+						}
 					} else if (!err && docs.length === 0) {
 						failRequest(req, res, "No children.");
 					} else {
@@ -282,7 +316,7 @@ client.get('/next', function(req, res) {
 });
 
 client.get('/jump', function(req, res) { 
-	req.assert('parent', 'Parent id is required.').notEmpty();
+	req.assert('parent', 'Story id is required.').notEmpty();
 	validateFields(req, res, function() {
 		Story.findOne({
 			'shortID': req.query.parent
@@ -292,12 +326,17 @@ client.get('/jump', function(req, res) {
 				'parent': current.parent
 			}, function(err, sibs) {
 				console.log("sibs = " + sibs);
-				var sib;
-				do {
-					sib = sibs[Math.floor(Math.random() * sibs.length)];
-				} while (sib.shortID == req.query.parent);
-				console.log("sib = " + sib);
-				completeRequest(req, res, sib, "/story/" + sib.shortID);
+				if(sibs.length>1) {
+					var sib;
+					do {
+						sib = sibs[Math.floor(Math.random() * sibs.length)];
+					} while (sib.shortID == req.query.parent);
+					console.log("sib = " + sib);
+					completeRequest(req, res, sib, "/story/" + sib.shortID);
+				}
+				else {
+					failRequest(req, res, "No stories to jump to");
+				}
 			});
 		});
 	});
@@ -511,7 +550,9 @@ client.post('/create', function(req, res) {
 					if (err) return console.error(err);
 					//console.dir(stories);
 				});
-				completeRequest(req, res, test, '/story/' + shortID, "Save successful!");
+				var testt = test.toObject();	// expert naming convention
+				testt["starred"] = false;
+				completeRequest(req, res, testt, '/story/' + shortID, "Save successful!");
 			}
 		});
 	}
