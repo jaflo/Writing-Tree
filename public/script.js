@@ -70,7 +70,6 @@ $("#actions .continue").click(function(e) {
 		$.get("/next", {
 			parent: $("#editor [name=parent]").val()
 		}).done(function(res) {
-			console.log(res);
 			if (res.status == "success") {
 				if (hasSeenNewest) {
 					cleanupStory();
@@ -113,6 +112,7 @@ function syncState(state) {
 	$("#editor [name=parent]").val(state.id);
 	$("#currentinfo time").attr("datetime", (new Date(state.changedat)).toISOString());
 	$("#currentinfo .views span").text(state.views);
+	star(state.starred, true);
 }
 
 function addNew(nextText, data) {
@@ -127,7 +127,8 @@ function addNew(nextText, data) {
 	var state = {
 		id: data.shortID,
 		changedat: data.changedat,
-		views: data.views
+		views: data.views,
+		starred: data.starred
 	};
 	history.pushState(state, "", "/story/" + data.shortID);
 	animating = true;
@@ -175,7 +176,6 @@ $("#actions .jump").click(function(e) {
 		$.get("/jump", {
 			parent: $("#editor [name=parent]").val()
 		}).done(function(res) {
-			console.log(res);
 			if (res.status == "success") {
 				var piece = makePart(res.data).removeClass("hidden").addClass("exitright"),
 					contentHeight = measureHeight(piece),
@@ -191,7 +191,8 @@ $("#actions .jump").click(function(e) {
 				var state = {
 					id: res.data.shortID,
 					changedat: res.data.changedat,
-					views: res.data.views
+					views: res.data.views,
+					starred: res.data.starred
 				};
 				history.pushState(state, "", "/story/" + res.data.shortID);
 				setTimeout(function() {
@@ -222,14 +223,21 @@ $("#actions .star").click(function() {
 		id: $("#editor [name=parent]").val()
 	}).done(function(res) {
 		if (res.status == "success") {
-			console.log(res.data.starred);
-			$("#actions .star").toggleClass("starred", res.data.starred)
-				.find("i").removeClass("fa-star-o fa-star")
-				.addClass(res.data.starred ? "fa-star" : "fa-star-o")
-				.attr("title", res.data.starred ? "Unstar" : "Star");
+			star(res.data.starred);
 		}
 	}, "json");
 });
+
+function star(starred, cancelanimation) {
+	if (cancelanimation) $("#actions .star").addClass("noanimate").outerWidth();
+	console.log(starred);
+	$("#actions .star").toggleClass("starred", starred)
+		.find("i").removeClass("fa-star-o fa-star")
+		.addClass(starred ? "fa-star" : "fa-star-o")
+		.attr("title", starred ? "Unstar" : "Star");
+	$("#actions .star").outerWidth();
+	$("#actions .star").removeClass("noanimate");
+}
 
 function measureHeight(content) {
 	var h = $("#tester").height("auto").html(content).outerHeight();
@@ -243,7 +251,6 @@ $("#navigation .write").click(function() {
 
 $("#editor").submit(function() {
 	$.post("/create", $("#editor").serialize()).done(function(res) {
-		console.log(res);
 		if (res.status == "success") {
 			addNew(res.data.content, res.data);
 			$("#editor textarea").val("");

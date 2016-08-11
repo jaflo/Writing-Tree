@@ -138,7 +138,8 @@ body {
 	display: none;
 }
 
-html.noanimate {
+.noanimate {
+	&, &:before, &:after,
 	*, :before, :after {
 		transition: none !important;
 	}
