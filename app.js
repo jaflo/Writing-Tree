@@ -212,7 +212,8 @@ client.get('/story/:id', function(req, res) {
 					ISO8601: story.changedat.toISOString(),
 					views: story.views,
 					siblings: story.siblings,
-					starred: user.starred.includes(story.shortID)
+					starred: user.starred.includes(story.shortID),
+					starcount: story.starcount
 				});
 			}, function() {
 				res.status(404);
@@ -232,7 +233,8 @@ client.get('/story/:id', function(req, res) {
 				ISO8601: story.changedat.toISOString(),
 				views: story.views,
 				siblings: story.siblings,
-				starred: false
+				starred: false,
+				starcount: story.starcount
 			});
 		}, function() {
 			res.status(404);
