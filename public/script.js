@@ -112,7 +112,7 @@ function syncState(state) {
 	$("#editor [name=parent]").val(state.id);
 	$("#currentinfo time").attr("datetime", (new Date(state.changedat)).toISOString());
 	$("#currentinfo .views span").text(state.views);
-	$("#currentinfo .stars span").text(state.starcount);
+	$("#currentinfo .stars span").text(state.stars);
 	star(state.starred, true);
 }
 
