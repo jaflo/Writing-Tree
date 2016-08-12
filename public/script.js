@@ -242,7 +242,7 @@ function star(starred, cancelanimation) {
 	$("#actions .star").removeClass("noanimate");
 	if (state) {
 		state.starred = starred;
-		history.replaceState(state, "", "/story/" + state.shortID);
+		history.replaceState(state, "", "/story/" + state.id);
 	}
 }
 
