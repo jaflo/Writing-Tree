@@ -1,0 +1,30 @@
+{{#if user}}
+	<div id = "username">
+		<h1>{{username}}</h1>
+	</div>
+	<h2>Written:</h2>
+	<div id="story">
+		{{#each story}}
+			<div class="part" id="part-{{shortID}}">
+				<a href="/story/{{shortID}}" id="shortID">{{shortID}}</a>
+				<div class="content">{{content}}</div>
+				<div class="info">
+					by <a href="/user/{{author}}">{{author}}</a>
+					<div class="right">
+						Star Count: {{starcount}}
+					</div>
+				</div>
+			</div>
+		{{/each}}
+	</div>
+	<h2>Starred:</h2>
+	<div id="starred">
+		{{#each starred}}
+			<div class="part" id="part-{{shortID}}">
+				<a href="/story/{{this}}" id="shortID">{{this}}</a>
+			</div>
+		{{/each}}
+	</div>
+{{else}}
+	<div class="empty">No User.</div>
+{{/if}}
