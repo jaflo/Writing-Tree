@@ -574,26 +574,40 @@ client.get('/user/username/starred', function(req, res) {
 	//should return HTML
 });
 
-client.get('/user/username/mine', function(req, res) {
-	//should return HTML
+client.get('/mine', function(req, res) {
+	if(req.user) {
+		Story.find({author: req.user.username}, function(err, stories){
+			res.render("mine", {
+				user: req.user,
+				username: req.user.username,
+				story: stories,
+				starred: req.user.starred
+			});
+		});
+	} else { 
+		failRequest(req, res, "Please log in!");
+	}
 });
 
 client.get('/user/:usr', function(req, res) {
-	User.findOne({username: req.params.usr}, function(err, user){
-		if(user) {
-			Story.find({author: user.username}, function(err, stories){
-				console.log(user);
-				res.render("user", {
-					user: user,
-					username: user.username,
-					story: stories
+	if(req.user && req.params.usr === req.user.username) { res.redirect("/mine"); }
+	else {
+		User.findOne({username: req.params.usr}, function(err, user){
+			if(user) {
+				Story.find({author: user.username}, function(err, stories){
+					console.log(user);
+					res.render("user", {
+						user: user,
+						username: user.username,
+						story: stories
+					});
 				});
-			});
-		}
-		else {
-			res.redirect("404");
-		}
-	});
+			}
+			else {
+				res.redirect("404");
+			}
+		});
+	}
 });
 
 client.post('/user/username/preferences', function(req, res) {
