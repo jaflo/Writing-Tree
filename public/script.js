@@ -112,6 +112,7 @@ function syncState(state) {
 	$("#editor [name=parent]").val(state.id);
 	$("#currentinfo time").attr("datetime", (new Date(state.changedat)).toISOString());
 	$("#currentinfo .views span").text(state.views);
+	$("#currentinfo .stars span").text(state.stars);
 	star(state.starred, true);
 }
 
@@ -128,6 +129,7 @@ function addNew(nextText, data) {
 		id: data.shortID,
 		changedat: data.changedat,
 		views: data.views,
+		stars: data.starcount,
 		starred: data.starred
 	};
 	history.pushState(state, "", "/story/" + data.shortID);
@@ -192,6 +194,7 @@ $("#actions .jump").click(function(e) {
 					id: res.data.shortID,
 					changedat: res.data.changedat,
 					views: res.data.views,
+					stars: res.data.starcount,
 					starred: res.data.starred
 				};
 				history.pushState(state, "", "/story/" + res.data.shortID);
@@ -230,7 +233,6 @@ $("#actions .star").click(function() {
 
 function star(starred, cancelanimation) {
 	if (cancelanimation) $("#actions .star").addClass("noanimate").outerWidth();
-	console.log(starred);
 	$("#actions .star").toggleClass("starred", starred)
 		.find("i").removeClass("fa-star-o fa-star")
 		.addClass(starred ? "fa-star" : "fa-star-o")
