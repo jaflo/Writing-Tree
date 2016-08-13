@@ -25,8 +25,15 @@
 	<div id="starred">
 		{{#if starred}}
 			{{#each starred}}
-				<div class="part" id="part-{{this}}">
-					<a href="/story/{{this}}" id="shortID">{{this}}</a>
+				<div class="part" id="part-{{shortID}}">
+					<a href="/story/{{shortID}}" id="shortID">{{shortID}}</a>
+					<div class="content">{{content}}</div>
+					<div class="info">
+						by <a href="/user/{{author}}">{{author}}</a>
+						<div class="right">
+							Star Count: {{starcount}}
+						</div>
+					</div>
 				</div>
 			{{/each}}
 		{{else}}

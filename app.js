@@ -88,6 +88,7 @@ User.find(function(err, stories) {
 });
 
 Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
+User.collection.drop(); //For testion purposes, deletes all previous stories on startup
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
@@ -471,7 +472,7 @@ client.post('/:id/edit', function(req, res) {
 });
 
 client.post('/:id/remove', function(req, res) {
-	validateFields(req, res, function() {
+	Story.findOne({shortID: req.body.parent}, function() {
 		Story.find({
 			'parent': req.query.parent
 		}, function(err, docs) {
@@ -479,8 +480,8 @@ client.post('/:id/remove', function(req, res) {
 			if (!err && docs.length !== 0) {
 				console.log("Document " + req.query.parent + " cannot be deleted because it has children.");
 			} else if (!err && docs.length === 0) {
-				Story.find({
-					'parent': req.query.parent
+				Story.findOne({
+					'shortID': req.query.parent
 				}).remove();
 			} else {
 				console.log('ERROR: Story with parentID ' + req.query.parent + ' not found');
@@ -576,12 +577,16 @@ client.get('/user/username/starred', function(req, res) {
 
 client.get('/mine', function(req, res) {
 	if(req.user) {
-		Story.find({author: req.user.username}, function(err, stories){
-			res.render("mine", {
-				user: req.user,
-				username: req.user.username,
-				story: stories,
-				starred: req.user.starred
+		User.findOne({username: req.user.username}, function(err, usr) {
+			Story.find({author: req.user.username}, function(err, stories){
+				Story.find({shortID: {$in: usr.starred}}, function(err, starred){
+					res.render("mine", {
+						user: req.user,
+						username: req.user.username,
+						story: stories,
+						starred: starred
+					});
+				})
 			});
 		});
 	} else { 
