@@ -88,7 +88,6 @@ User.find(function(err, stories) {
 });
 
 Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
-User.collection.drop(); //For testion purposes, deletes all previous stories on startup
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
