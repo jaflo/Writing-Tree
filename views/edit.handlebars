@@ -1,0 +1,24 @@
+<div class="part" id="part-{{shortID}}">
+	<div class="content">{{content}}</div>
+	<div class="info">
+		by <a href="/user/{{author}}">{{author}}</a>
+		<div class="right">
+			<a href="/story/{{shortID}}" class="starcount">Starcount: {{starcount}}</a>
+		</div>
+	</div>
+</div>
+
+<form action="/story/{{shortID}}/edit" method="post">
+	<label for="content" class="overlay">Write your edits here</label>
+	<input type="hidden" name="shortID" value="{{shortID}}" />
+	<textarea name="content" cols="30" rows="10" id="content">{{content}}</textarea>
+	<div class="toolbar">
+		<button type="button" class="preview"><span>Preview</span></button>
+		<button type="submit" class="main publish" title="Submit this edit"><span>Publish</span></button>
+	</div>
+</form>
+
+<form action="/story/{{shortID}}/remove" method="post">
+	<input type="hidden" name="shortID" value="{{shortID}}" />
+	<button type="submit" class="main publish" title="Remove the post"><span>Remove</span></button>
+</form>
