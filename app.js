@@ -9,7 +9,8 @@ var flash = require('connect-flash');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var validator = require('validator');
-var mongo = require('mongodb');
+var server = require('http').createServer();
+var io = require('socket.io')(server);
 var mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
@@ -571,6 +572,7 @@ client.post('/story/:id/remove', function(req, res) {
 									failRequest(req, res, "Error, unable to remove.");
 								}
 								else {
+									socket.
 									Story.findOneAndRemove({shortID: req.body.shortID}, function(err) {
 										if(err) {
 											failRequest(req, res, "Error, unable to remove.");
@@ -593,6 +595,22 @@ client.post('/story/:id/remove', function(req, res) {
 	else {
 		failRequest(req, res, "Please Log In.");
 	}
+});
+
+io.sockets.on('connection', function(socket) {
+	socket.on('editing', function(shortID){	
+		socket.join("edits");
+		socket.to(shortID).to("stories").broadcast.emit("editing", "This page is being edited! Please consider this if you are writing a continuation.");
+	});
+	socket.on('removal', function(shortID){
+		socket.join(shortID);
+		socket.to(shortID).to("stories").broadcast.emit("removal", "This page has been removed!");
+	});
+	socket.on('page', function(data){
+		socket.join(shortID);
+		socket.join("stories");
+		socket.to(shortID).to("edits").broadcast.emit("viewing", "A person is viewing your page right now.");
+	});
 });
 
 function validateFields(req, res, callback) {
@@ -649,6 +667,7 @@ client.post('/create', function(req, res) {
 			if (story) { // story with that ID already exists, so new ID
 				attemptCreation(randomString());
 			} else {
+				io.sockets.to("edits").to(shortID).emit("children", "Unable to edit: a child was created!");
 				var test = new Story({
 					shortID: shortID,
 					parent: req.body.parent, // [TODO] check if exists

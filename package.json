@@ -1,29 +1,30 @@
 {
-    "name": "github-writing",
-    "version": "1.0.0",
-    "description": "",
-    "main": "the-writing-tree.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "Devesh Singh, Gabriel Britain, Edan Meyer, Florian Janke",
-    "license": "ISC",
-    "dependencies": {
-        "bcryptjs": "*",
-        "body-parser": "*",
-        "connect-flash": "*",
-        "cookie-parser": "*",
-        "express": "*",
-        "express-handlebars": "*",
-        "express-messages": "*",
-        "express-session": "*",
-        "express-validator": "^2.20.8",
-        "less-middleware": "^2.2.0",
-        "mongodb": "*",
-        "mongoose": "*",
-        "passport": "*",
-        "passport-http": "*",
-        "passport-local": "*",
-        "validator": "^5.5.0"
-    }
+  "name": "github-writing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "the-writing-tree.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Devesh Singh, Gabriel Britain, Edan Meyer, Florian Janke",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "connect-flash": "*",
+    "cookie-parser": "*",
+    "express": "*",
+    "express-handlebars": "*",
+    "express-messages": "*",
+    "express-session": "*",
+    "express-validator": "^2.20.8",
+    "less-middleware": "^2.2.0",
+    "mongodb": "*",
+    "mongoose": "*",
+    "passport": "*",
+    "passport-http": "*",
+    "passport-local": "*",
+    "socket.io": "^1.4.8",
+    "validator": "^5.5.0"
+  }
 }
