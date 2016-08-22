@@ -786,21 +786,41 @@ client.get('/user/username/preferences', function(req, res) {
 });
 
 client.post('/user/username/preferences', function(req, res) {
-	User.update({
-		username: req.user.username
-	}, {
-		username: req.body.username,
-		email: req.user.email,
-		password: req.user.password,
-		createdat: req.user.createdat,
-		changedat: req.user.changedat,
-		starred: req.user.starred,
-		preferences: req.user.preferences
-	}, function(err, numberAffected, rawResponse) {
-		console.log("req.user.username = " + req.user.username);
-		console.log("req.body.username = " + req.body.username);
-		res.redirect("/login");
-	});
+	if (req.body.username)	{
+		User.update({
+			username: req.user.username
+		}, {
+			username: req.body.username,
+			email: req.user.email,
+			password: req.user.password,
+			createdat: req.user.createdat,
+			changedat: req.user.changedat,
+			starred: req.user.starred,
+			preferences: req.user.preferences
+		}, function(err, numberAffected, rawResponse) {
+			console.log("req.user.username = " + req.user.username);
+			console.log("req.body.username = " + req.body.username);
+			res.redirect("/login");
+		});
+	}
+	if (req.body.email)	{
+		User.update({
+			username: req.user.username
+		}, {
+			username: req.user.username,
+			email: req.body.email,
+			password: req.user.password,
+			createdat: req.user.createdat,
+			changedat: req.user.changedat,
+			starred: req.user.starred,
+			preferences: req.user.preferences
+		}, function(err, numberAffected, rawResponse) {
+			console.log("req.user.email = " + req.user.email);
+			console.log("req.body.email = " + req.body.email);
+			res.redirect("/login");
+		});
+	}
+
 });
 
 //Uses multiple kinds of requests, 'get' is just a placeholder

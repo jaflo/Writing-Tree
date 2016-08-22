@@ -1,7 +1,7 @@
 {{#if user}}
 	<div id="username">
 		<h1>{{username}}</h1>
-		<form action= "/user/username/preferences" method="post">
+		<form action="/user/username/preferences" method="post">
 			New username:
 			<br>
 			<input type="text" name="username">
@@ -11,6 +11,13 @@
 	</div>
 	<div id="email">
 		<h2>Email: {{email}}</h1>
+			<form action= "/user/username/preferences" method="post">
+				New email:
+				<br>
+				<input type="text" name="email">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
 	</div>
 
 	<div id="timeCreated">
