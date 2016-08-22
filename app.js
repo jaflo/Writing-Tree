@@ -115,8 +115,10 @@ client.listen(client.get('port'), function() {
 })
 
 client.get('/', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, "starred", function(err, user) {
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, "starred", function(err, user) {
 			load(0, function(stories, story) {
 				res.render('index', {
 					bodyclass: "longer",
@@ -130,8 +132,7 @@ client.get('/', function(req, res) {
 				});
 			});
 		});
-    }
-	else {
+	} else {
 		load(0, function(stories, story) {
 			res.render('index', {
 				bodyclass: "longer",
@@ -202,8 +203,10 @@ function load(shortid, complete, fail) {
 }
 
 client.get('/story/:id', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, "starred", function(err, user) {
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, "starred", function(err, user) {
 			load(req.params.id, function(stories, story) {
 				res.render('index', {
 					bodyclass: "longer",
@@ -223,8 +226,7 @@ client.get('/story/:id', function(req, res) {
 				});
 			});
 		});
-	}
-	else {
+	} else {
 		load(req.params.id, function(stories, story) {
 			res.render('index', {
 				bodyclass: "longer",
@@ -256,21 +258,21 @@ client.get('/next', function(req, res) {
 			console.log(docs);
 			if (!err && docs.length !== 0) {
 				var dock = docs[Math.floor(Math.random() * docs.length)];
-				if(req.user) {
-					User.findOne({username: req.user.username}, function(err, usr){
-						if(err) {
+				if (req.user) {
+					User.findOne({
+						username: req.user.username
+					}, function(err, usr) {
+						if (err) {
 							failRequest(req, res, "ERROR: Try again later.");
 							console.log(err);
-						}
-						else {
+						} else {
 							var doc = dock.toObject();
 							doc["starred"] = usr.starred.includes(dock.shortID);
 							console.log(doc);
 							completeRequest(req, res, doc, "story/" + dock.shortID);
 						}
 					});
-				}
-				else {
+				} else {
 					var doc = dock.toObject();
 					doc["starred"] = false;
 					console.log(doc);
@@ -282,21 +284,21 @@ client.get('/next', function(req, res) {
 				}, function(err, docs) {
 					if (!err && docs.length !== 0) {
 						var dock = docs[Math.floor(Math.random() * docs.length)];
-						if(req.user) {
-							User.findOne({username: req.user.username}, function(err, usr){
-								if(err) {
+						if (req.user) {
+							User.findOne({
+								username: req.user.username
+							}, function(err, usr) {
+								if (err) {
 									failRequest(req, res, "ERROR: Try again later.");
 									console.log(err);
-								}
-								else {
+								} else {
 									var doc = dock.toObject();
 									doc["starred"] = usr.starred.includes(dock.shortID);
 									console.log(doc);
 									completeRequest(req, res, doc, "story/" + dock.shortID);
 								}
 							});
-						}
-						else {
+						} else {
 							var doc = dock.toObject();
 							doc["starred"] = false;
 							console.log(doc);
@@ -317,7 +319,7 @@ client.get('/next', function(req, res) {
 	});
 });
 
-client.get('/jump', function(req, res) { 
+client.get('/jump', function(req, res) {
 	req.assert('parent', 'Story id is required.').notEmpty();
 	validateFields(req, res, function() {
 		Story.findOne({
@@ -328,26 +330,26 @@ client.get('/jump', function(req, res) {
 				'parent': current.parent
 			}, function(err, sibs) {
 				console.log("sibs = " + sibs);
-				if(sibs.length>1) {
+				if (sibs.length > 1) {
 					var sib;
 					do {
 						sib = sibs[Math.floor(Math.random() * sibs.length)];
 					} while (sib.shortID == req.query.parent);
 					console.log("sib = " + sib);
-					if(req.user) {
-						User.findOne({username: req.user.username}, function(err, usr) {
+					if (req.user) {
+						User.findOne({
+							username: req.user.username
+						}, function(err, usr) {
 							var sibb = sib.toObject();
 							sibb["starred"] = usr.starred.includes(sib.shortID);
 							completeRequest(req, res, sibb, "/story/" + sib.shortID);
 						});
-					}
-					else {
+					} else {
 						var sibb = sib.toObject();
 						sibb["starred"] = false;
 						completeRequest(req, res, sibb, "/story/" + sib.shortID);
 					}
-				}
-				else {
+				} else {
 					failRequest(req, res, "No stories to jump to");
 				}
 			});
@@ -356,9 +358,11 @@ client.get('/jump', function(req, res) {
 });
 
 client.get('/star', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, function(err, usr){
-			if(!usr.starred.includes(req.query.id)) {
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, function(err, usr) {
+			if (!usr.starred.includes(req.query.id)) {
 				User.update({
 						username: req.user.username
 					}, {
@@ -387,27 +391,29 @@ client.get('/star', function(req, res) {
 										failRequest(req, res, "Unable to star, try again later");
 										console.log(err);
 									} else {
-										completeRequest(req, res, {starred: true}, "back", "Starred");
+										completeRequest(req, res, {
+											starred: true
+										}, "back", "Starred");
 									}
 								});
 						}
 					}
 				);
-			}
-			else {
+			} else {
 				failRequest(req, res, "Story already starred");
 			}
 		});
-	}
-	else {
+	} else {
 		failRequest(req, res, "Log in to star");
 	}
 });
 
 client.get('/unstar', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, function(err, usr){
-			if(usr.starred.includes(req.query.id)) {
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, function(err, usr) {
+			if (usr.starred.includes(req.query.id)) {
 				User.update({
 						username: req.user.username
 					}, {
@@ -436,19 +442,19 @@ client.get('/unstar', function(req, res) {
 										failRequest(req, res, "Unable to unstar, try again later");
 										console.log(err);
 									} else {
-										completeRequest(req, res, {starred: false}, "back", "Unstarred");
+										completeRequest(req, res, {
+											starred: false
+										}, "back", "Unstarred");
 									}
 								});
 						}
 					}
 				);
-			}
-			else {
+			} else {
 				failRequest(req, res, "Story not starred");
 			}
 		});
-	}
-	else {
+	} else {
 		failRequest(req, res, "Log in to unstar");
 	}
 });
@@ -468,77 +474,82 @@ client.post('/flag', function(req, res) {
 });
 
 client.get('/story/:id/edit', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, function(err, user){
-			if(err) { 
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, function(err, user) {
+			if (err) {
 				failRequest(req, res, "Error, unable to edit.");
-			}
-			else {
-				Story.findOne({"shortID": req.params.id}, function(err, story) {
-					if(err) {
+			} else {
+				Story.findOne({
+					"shortID": req.params.id
+				}, function(err, story) {
+					if (err) {
 						failRequest(req, res, "Error, unable to edit.");
-					}
-					else if(story.author != req.user.username) {
+					} else if (story.author != req.user.username) {
 						failRequest(req, res, "You cannot edit this post!");
-					}
-					else {
-						Story.count({"parent": req.params.id}, function(err, count) {
-							if(err) {
+					} else {
+						Story.count({
+							"parent": req.params.id
+						}, function(err, count) {
+							if (err) {
 								failRequest(req, res, "Error, unable to edit.");
 							}
-							if(count === 0) {
+							if (count === 0) {
 								res.render("edit", {
 									shortID: story.shortID,
 									author: story.author,
 									starcount: story.starcount,
 									content: story.content
 								});
-							}
-							else { 
-								failRequest(req, res, "You cannot edit/remove a post with children."); 
+							} else {
+								failRequest(req, res, "You cannot edit/remove a post with children.");
 							}
 						});
 					}
 				});
 			}
 		});
-	}
-	else {
+	} else {
 		failRequest(req, res, "Please Log In.");
 	}
 });
 
 client.post('/story/:id/edit', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, function(err, user){
-			if(err) {
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, function(err, user) {
+			if (err) {
 				failRequest(req, res, "Error, unable to edit.");
-			}
-			else {
-				Story.findOne({shortID: req.body.shortID}, function(err, story) {
-					if(err) {
+			} else {
+				Story.findOne({
+					shortID: req.body.shortID
+				}, function(err, story) {
+					if (err) {
 						failRequest(req, res, "Error, unable to edit.");
-					}
-					else if(story.author != req.user.username) {
+					} else if (story.author != req.user.username) {
 						failRequest(req, res, "You cannot edit this post!");
-					}
-					else {
-						Story.count({"parent": req.body.shortID}, function(err, count) {
-							if(err) {
+					} else {
+						Story.count({
+							"parent": req.body.shortID
+						}, function(err, count) {
+							if (err) {
 								failRequest(req, res, "Error, unable to edit.");
-							}
-							else if(count === 0) {
-								Story.findOneAndUpdate({shortID: req.body.shortID}, {"content": req.body.content}, function(err, stry) {
-									if(err) {
+							} else if (count === 0) {
+								Story.findOneAndUpdate({
+									shortID: req.body.shortID
+								}, {
+									"content": req.body.content
+								}, function(err, stry) {
+									if (err) {
 										failRequest(req, res, "Error, unable to edit.");
-									}
-									else {
-										res.redirect("/story/"+req.body.shortID);
+									} else {
+										res.redirect("/story/" + req.body.shortID);
 									}
 								});
-							}
-							else { 
-								failRequest(req, res, "You cannot edit/remove a post with children."); 
+							} else {
+								failRequest(req, res, "You cannot edit/remove a post with children.");
 							}
 						});
 					}
@@ -549,36 +560,42 @@ client.post('/story/:id/edit', function(req, res) {
 });
 
 client.post('/story/:id/remove', function(req, res) {
-	if(req.user) {
-		Story.findOne({shortID: req.body.shortID}, function(err, doc) {
-			if(err) {
+	if (req.user) {
+		Story.findOne({
+			shortID: req.body.shortID
+		}, function(err, doc) {
+			if (err) {
 				failRequest(req, res, "Error, unable to remove.");
-			}
-			else if(doc.author == req.user.username) {
+			} else if (doc.author == req.user.username) {
 				Story.count({
 					'parent': req.body.shortID
 				}, function(err, count) {
-					if(err) {
+					if (err) {
 						failRequest(req, res, "Error, unable to remove.");
-					}
-					else {
+					} else {
 						console.log(count);
 						var parentID = doc.parent;
 						if (count !== 0) {
 							console.log("You cannot edit/remove a post with children.");
 						} else if (count === 0) {
-							User.update({starred: req.body.shortID}, {$pull: {starred: req.body.shortID}}, function(err, info) {
-								if(err) {
-									failRequest(req, res, "Error, unable to remove.");
+							User.update({
+								starred: req.body.shortID
+							}, {
+								$pull: {
+									starred: req.body.shortID
 								}
-								else {
+							}, function(err, info) {
+								if (err) {
+									failRequest(req, res, "Error, unable to remove.");
+								} else {
 									socket.
-									Story.findOneAndRemove({shortID: req.body.shortID}, function(err) {
-										if(err) {
+									Story.findOneAndRemove({
+										shortID: req.body.shortID
+									}, function(err) {
+										if (err) {
 											failRequest(req, res, "Error, unable to remove.");
-										}
-										else {
-											res.redirect("/story/"+parentID);
+										} else {
+											res.redirect("/story/" + parentID);
 										}
 									});
 								}
@@ -586,27 +603,25 @@ client.post('/story/:id/remove', function(req, res) {
 						}
 					}
 				});
-			}
-			else {
+			} else {
 				failRequest(req, res, "You cannot delete someone else's post!");
 			}
 		});
-	}
-	else {
+	} else {
 		failRequest(req, res, "Please Log In.");
 	}
 });
 
 io.sockets.on('connection', function(socket) {
-	socket.on('editing', function(shortID){	
+	socket.on('editing', function(shortID) {
 		socket.join("edits");
 		socket.to(shortID).to("stories").broadcast.emit("editing", "This page is being edited! Please consider this if you are writing a continuation.");
 	});
-	socket.on('removal', function(shortID){
+	socket.on('removal', function(shortID) {
 		socket.join(shortID);
 		socket.to(shortID).to("stories").broadcast.emit("removal", "This page has been removed!");
 	});
-	socket.on('page', function(data){
+	socket.on('page', function(data) {
 		socket.join(shortID);
 		socket.join("stories");
 		socket.to(shortID).to("edits").broadcast.emit("viewing", "A person is viewing your page right now.");
@@ -650,6 +665,7 @@ function failRequest(req, res, errors) {
 	return;
 }
 
+
 client.post('/create', function(req, res) {
 	if (!req.user) return failRequest(req, res, "You need to be logged in.");
 	req.assert('parent', 'Parent is required.').notEmpty();
@@ -686,7 +702,7 @@ client.post('/create', function(req, res) {
 					if (err) return console.error(err);
 					//console.dir(stories);
 				});
-				var testt = test.toObject();	// expert naming convention
+				var testt = test.toObject(); // expert naming convention
 				testt["starred"] = false;
 				completeRequest(req, res, testt, '/story/' + shortID, "Save successful!");
 			}
@@ -699,10 +715,18 @@ client.get('/user/username/starred', function(req, res) {
 });
 
 client.get('/mine', function(req, res) {
-	if(req.user) {
-		User.findOne({username: req.user.username}, function(err, usr) {
-			Story.find({author: req.user.username}, function(err, stories){
-				Story.find({shortID: {$in: usr.starred}}, function(err, starred){
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, function(err, usr) {
+			Story.find({
+				author: req.user.username
+			}, function(err, stories) {
+				Story.find({
+					shortID: {
+						$in: usr.starred
+					}
+				}, function(err, starred) {
 					res.render("mine", {
 						user: req.user,
 						username: req.user.username,
@@ -712,17 +736,22 @@ client.get('/mine', function(req, res) {
 				})
 			});
 		});
-	} else { 
+	} else {
 		failRequest(req, res, "Please log in!");
 	}
 });
 
 client.get('/user/:usr', function(req, res) {
-	if(req.user && req.params.usr === req.user.username) { res.redirect("/mine"); }
-	else {
-		User.findOne({username: req.params.usr}, function(err, user){
-			if(user) {
-				Story.find({author: user.username}, function(err, stories){
+	if (req.user && req.params.usr === req.user.username) {
+		res.redirect("/mine");
+	} else {
+		User.findOne({
+			username: req.params.usr
+		}, function(err, user) {
+			if (user) {
+				Story.find({
+					author: user.username
+				}, function(err, stories) {
 					console.log(user);
 					res.render("user", {
 						user: user,
@@ -730,16 +759,48 @@ client.get('/user/:usr', function(req, res) {
 						story: stories
 					});
 				});
-			}
-			else {
+			} else {
 				res.redirect("404");
 			}
 		});
 	}
 });
 
+client.get('/user/username/preferences', function(req, res) {
+	console.log("REQ.USER = " + req.user);
+	if (req.user) {
+		User.findOne({
+			username: req.user.username
+		}, function(err, user) {
+			if (user) {
+				res.render('preferences', {
+					username: user.username,
+					email: user.email,
+					timeCreated: user.createdat
+				});
+			}
+		});
+	} else {
+		failRequest(req, res, "Please log in!");
+	}
+});
+
 client.post('/user/username/preferences', function(req, res) {
-	//should return JSON
+	User.update({
+		username: req.user.username
+	}, {
+		username: req.body.username,
+		email: req.user.email,
+		password: req.user.password,
+		createdat: req.user.createdat,
+		changedat: req.user.changedat,
+		starred: req.user.starred,
+		preferences: req.user.preferences
+	}, function(err, numberAffected, rawResponse) {
+		console.log("req.user.username = " + req.user.username);
+		console.log("req.body.username = " + req.body.username);
+		res.redirect("/login");
+	});
 });
 
 //Uses multiple kinds of requests, 'get' is just a placeholder
