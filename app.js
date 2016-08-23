@@ -65,11 +65,6 @@ client.use(expressValidator({
 			formParam += '[' + namespace.shift() + ']';
 		}
 		return msg + " ";
-		/*return {
-			param: formParam,
-			msg: msg,
-			value: value
-		};*/
 	}
 }));
 
@@ -786,7 +781,7 @@ client.get('/user/username/preferences', function(req, res) {
 });
 
 client.post('/user/username/preferences', function(req, res) {
-	if (req.body.username)	{
+	if (req.body.username) {
 		User.update({
 			username: req.user.username
 		}, {
@@ -794,7 +789,7 @@ client.post('/user/username/preferences', function(req, res) {
 			email: req.user.email,
 			password: req.user.password,
 			createdat: req.user.createdat,
-			changedat: req.user.changedat,
+			changedat: Date.now(),
 			starred: req.user.starred,
 			preferences: req.user.preferences
 		}, function(err, numberAffected, rawResponse) {
@@ -803,7 +798,7 @@ client.post('/user/username/preferences', function(req, res) {
 			res.redirect("/login");
 		});
 	}
-	if (req.body.email)	{
+	if (req.body.email) {
 		User.update({
 			username: req.user.username
 		}, {
@@ -811,7 +806,7 @@ client.post('/user/username/preferences', function(req, res) {
 			email: req.body.email,
 			password: req.user.password,
 			createdat: req.user.createdat,
-			changedat: req.user.changedat,
+			changedat: Date.now(),
 			starred: req.user.starred,
 			preferences: req.user.preferences
 		}, function(err, numberAffected, rawResponse) {
@@ -820,7 +815,21 @@ client.post('/user/username/preferences', function(req, res) {
 			res.redirect("/login");
 		});
 	}
-
+	if (req.body.password) {
+		User.update({
+			username: req.user.username
+		}, {
+			username: req.user.username,
+			email: req.user.email,
+			password: req.user.password,
+			createdat: req.user.createdat,
+			changedat: Date.now(),
+			starred: req.user.starred,
+			preferences: req.user.preferences
+		}, function(err, numberAffected, rawResponse) {
+			res.redirect('/login');
+		});
+	}
 });
 
 //Uses multiple kinds of requests, 'get' is just a placeholder
