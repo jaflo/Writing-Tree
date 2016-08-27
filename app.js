@@ -84,6 +84,7 @@ User.find(function(err, stories) {
 });
 
 Story.collection.drop(); //For testion purposes, deletes all previous stories on startup
+User.collection.drop(); //For testion purposes, deletes all previous stories on startup
 
 //If the database is new and their are no stories, create the first one
 Story.collection.count({}, function(err, count) {
@@ -583,13 +584,13 @@ client.post('/story/:id/remove', function(req, res) {
 								if (err) {
 									failRequest(req, res, "Error, unable to remove.");
 								} else {
-									socket.
 									Story.findOneAndRemove({
 										shortID: req.body.shortID
 									}, function(err) {
 										if (err) {
 											failRequest(req, res, "Error, unable to remove.");
 										} else {
+											io.sockets.to(shortID).emit("removal", "This page has been removed!");
 											res.redirect("/story/" + parentID);
 										}
 									});
@@ -609,17 +610,10 @@ client.post('/story/:id/remove', function(req, res) {
 
 io.sockets.on('connection', function(socket) {
 	socket.on('editing', function(shortID) {
-		socket.join("edits");
-		socket.to(shortID).to("stories").broadcast.emit("editing", "This page is being edited! Please consider this if you are writing a continuation.");
-	});
-	socket.on('removal', function(shortID) {
-		socket.join(shortID);
-		socket.to(shortID).to("stories").broadcast.emit("removal", "This page has been removed!");
+		socket.to(shortID).emit("editing", "This page is being edited! Please consider this if you are writing a continuation.");
 	});
 	socket.on('page', function(data) {
-		socket.join(shortID);
-		socket.join("stories");
-		socket.to(shortID).to("edits").broadcast.emit("viewing", "A person is viewing your page right now.");
+		socket.to(shortID).emit("viewing", "A person is viewing your page right now.");
 	});
 });
 
