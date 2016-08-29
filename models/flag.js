@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var flagSchema = mongoose.Schema({
-	id: String,
+	shortID: String,
 	reason: String,
 	flagger: String,
 	flagged: String,

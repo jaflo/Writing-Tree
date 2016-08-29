@@ -24,26 +24,25 @@ module.exports = function(passport, LocalStrategy, validator, User) {
 		// asynchronous
 		// User.findOne wont fire unless data is sent back
 		process.nextTick(function() {
+			var err = "";
 			if (req.body.reentered != req.body.password) {
-				return done(null, false, req.flash('error', 'Unable to sign up: Passwords do not match'));
-			} else if (req.body.password.length < 6) {
-				return done(null, false, req.flash('error', 'Unable to sign up: Passwords must be at least 6 characters long'));
-			} else if (req.body.password.match(/^\s*$/)) {
-				return done(null, false, req.flash('error', 'Error: All fields must be filled'));
+				err += 'Error: Passwords do not match\n';
+			} if (req.body.password.length < 6) {
+				err += 'Error: Passwords must be at least 6 characters long\n';
+			} if (req.body.password.match(/^\s*$/)) {
+				err += 'Error: All fields must be filled\n';
+			} if (req.body.username.match(/\s/)) {
+				err += 'Error: Usernames can have no whitespace\n';
+			} if (req.body.username.length > 32) {
+				err += 'Error: Username cannot exceed 32 characters\n';
+			} if (req.body.email.length > 500) {
+				err += 'Error: Email cannot exceed 500 characters\n';
+			} if (!validator.isEmail(req.body.email)) {
+				err += 'Error: Must enter a valid email\n';
 			}
-			if (req.body.username.match(/\s/)) {
-				return done(null, false, req.flash('error', 'Error: Usernames can have no whitespace'));
-			} else if (req.body.username.length > 32) {
-				return done(null, false, req.flash('error', 'Error: Username cannot exceed 32 characters'));
+			if(err !== "") {
+				return done(null, false, req.flash('error', err.substring(0, err.length - 1)));
 			}
-			if (req.body.email.match(/^\s*$/)) {
-				return done(null, false, req.flash('error', 'Error: All fields must be filled'));
-			} else if (req.body.email.length > 500) {
-				return done(null, false, req.flash('error', 'Error: Email cannot exceed 500 characters'));
-			} else if (!validator.isEmail(req.body.email)) {
-				return done(null, false, req.flash('error', 'Error: Must enter valid email'));
-			}
-
 			User.findOne({
 				'username': username
 			}, function(err, user) {

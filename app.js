@@ -455,18 +455,50 @@ client.get('/unstar', function(req, res) {
 	}
 });
 
-client.post('/flag', function(req, res) {
-	var newFlag = new Flag({
-		id: req.body.id,
-		flagger: req.user.username,
-		flagged: req.body.flagged,
-		reason: req.body.reason,
-		createdat: Date.now(),
-		status: "unresolved"
-	});
-	newFlag.save(function(err) {
-		if (err) throw err;
-	});
+client.get('/story/:id/flag', function(req, res) {
+	if(req.user) {
+		Story.findOne({
+			shortID: req.params.id
+		}, function(err, story) {
+			if(err) {
+				failureRedirect(req, res, "Error, unable to flag.");
+			}
+			else if(story===null) {
+				res.status(404);
+				res.render('404', {
+					title: "Page not found"
+				});
+			} else if(req.params.id === "0") { 
+				failureRedirect(req, res, "You can't flag the home node!");
+			}
+			res.render("flag", story.toObject());
+		});
+	}
+	else {
+		failureRedirect(req, res, "You need to log in to flag a story!");
+	}
+});
+
+client.post('/story/:id/flag', function(req, res) {
+	if(req.user) {
+		if(req.body.shortID === "0") { failureRedirect(req, res, "You can't flag the home node!"); }
+		var newFlag = new Flag({
+			shortID: req.body.shortID,
+			flagger: req.user.username,
+			flagged: req.body.flagged,
+			reason: req.body.reason,
+			createdat: Date.now(),
+			status: "unresolved"
+		});
+		newFlag.save(function(err) {
+			if (err) throw err;
+			req.flash("The story was flagged.");
+			res.redirect("/story/"+req.body.parent);
+		});
+	}
+	else {
+		failureRedirect(req, res, "You need to log in to flag a story!");
+	}
 });
 
 client.get('/story/:id/edit', function(req, res) {
@@ -476,35 +508,39 @@ client.get('/story/:id/edit', function(req, res) {
 		}, function(err, user) {
 			if (err) {
 				failRequest(req, res, "Error, unable to edit.");
-			} else {
-				Story.findOne({
-					"shortID": req.params.id
-				}, function(err, story) {
-					if (err) {
-						failRequest(req, res, "Error, unable to edit.");
-					} else if (story.author != req.user.username) {
-						failRequest(req, res, "You cannot edit this post!");
-					} else {
-						Story.count({
-							"parent": req.params.id
-						}, function(err, count) {
-							if (err) {
-								failRequest(req, res, "Error, unable to edit.");
-							}
-							if (count === 0) {
-								res.render("edit", {
-									shortID: story.shortID,
-									author: story.author,
-									starcount: story.starcount,
-									content: story.content
-								});
-							} else {
-								failRequest(req, res, "You cannot edit/remove a post with children.");
-							}
-						});
-					}
-				});
-			}
+			} 
+			Story.findOne({
+				"shortID": req.params.id
+			}, function(err, story) {
+				if (err) {
+					failRequest(req, res, "Error, unable to edit.");
+				} else if(story===null) {
+					res.status(404);
+					res.render('404', {
+						title: "Page not found"
+					});
+				} else if (story.author != req.user.username) {
+					failRequest(req, res, "You cannot edit this post!");
+				} else {
+					Story.count({
+						"parent": req.params.id
+					}, function(err, count) {
+						if (err) {
+							failRequest(req, res, "Error, unable to edit.");
+						} else if (count === 0) {
+							res.render("edit", {
+								shortID: story.shortID,
+								author: story.author,
+								starcount: story.starcount,
+								content: story.content
+							});
+						} else {
+							failRequest(req, res, "You cannot edit/remove a post with children.");
+						}
+					});
+				}
+			});
+			
 		});
 	} else {
 		failRequest(req, res, "Please Log In.");
@@ -518,39 +554,39 @@ client.post('/story/:id/edit', function(req, res) {
 		}, function(err, user) {
 			if (err) {
 				failRequest(req, res, "Error, unable to edit.");
-			} else {
-				Story.findOne({
-					shortID: req.body.shortID
-				}, function(err, story) {
-					if (err) {
-						failRequest(req, res, "Error, unable to edit.");
-					} else if (story.author != req.user.username) {
-						failRequest(req, res, "You cannot edit this post!");
-					} else {
-						Story.count({
-							"parent": req.body.shortID
-						}, function(err, count) {
-							if (err) {
-								failRequest(req, res, "Error, unable to edit.");
-							} else if (count === 0) {
-								Story.findOneAndUpdate({
-									shortID: req.body.shortID
-								}, {
-									"content": req.body.content
-								}, function(err, stry) {
-									if (err) {
-										failRequest(req, res, "Error, unable to edit.");
-									} else {
-										res.redirect("/story/" + req.body.shortID);
-									}
-								});
-							} else {
-								failRequest(req, res, "You cannot edit/remove a post with children.");
-							}
-						});
-					}
-				});
 			}
+			Story.findOne({
+				shortID: req.body.shortID
+			}, function(err, story) {
+				if (err) {
+					failRequest(req, res, "Error, unable to edit.");
+				} else if (story.author != req.user.username) {
+					failRequest(req, res, "You cannot edit this post!");
+				} else {
+					Story.count({
+						"parent": req.body.shortID
+					}, function(err, count) {
+						if (err) {
+							failRequest(req, res, "Error, unable to edit.");
+						} else if (count === 0) {
+							Story.findOneAndUpdate({
+								shortID: req.body.shortID
+							}, {
+								"content": req.body.content
+							}, function(err, stry) {
+								if (err) {
+									failRequest(req, res, "Error, unable to edit.");
+								} else {
+									res.redirect("/story/" + req.body.shortID);
+								}
+							});
+						} else {
+							failRequest(req, res, "You cannot edit/remove a post with children.");
+						}
+					});
+				}
+			});
+			
 		});
 	}
 });
@@ -568,36 +604,36 @@ client.post('/story/:id/remove', function(req, res) {
 				}, function(err, count) {
 					if (err) {
 						failRequest(req, res, "Error, unable to remove.");
-					} else {
-						console.log(count);
-						var parentID = doc.parent;
-						if (count !== 0) {
-							console.log("You cannot edit/remove a post with children.");
-						} else if (count === 0) {
-							User.update({
+					} 
+					console.log(count);
+					var parentID = doc.parent;
+					if (count !== 0) {
+						console.log("You cannot edit/remove a post with children.");
+					} else if (count === 0) {
+						User.update({
+							starred: req.body.shortID
+						}, {
+							$pull: {
 								starred: req.body.shortID
-							}, {
-								$pull: {
-									starred: req.body.shortID
-								}
-							}, function(err, info) {
+							}
+						}, function(err, info) {
+							if (err) {
+								failRequest(req, res, "Error, unable to remove.");
+							}
+							Story.findOneAndRemove({
+								shortID: req.body.shortID
+							}, function(err) {
 								if (err) {
 									failRequest(req, res, "Error, unable to remove.");
-								} else {
-									Story.findOneAndRemove({
-										shortID: req.body.shortID
-									}, function(err) {
-										if (err) {
-											failRequest(req, res, "Error, unable to remove.");
-										} else {
-											io.sockets.to(shortID).emit("removal", "This page has been removed!");
-											res.redirect("/story/" + parentID);
-										}
-									});
 								}
+								io.sockets.to(shortID).emit("removal", "This page has been removed!");
+								res.redirect("/story/" + parentID);
+								
 							});
-						}
+							
+						});
 					}
+					
 				});
 			} else {
 				failRequest(req, res, "You cannot delete someone else's post!");
@@ -755,7 +791,7 @@ client.get('/user/:usr', function(req, res) {
 	}
 });
 
-client.get('/user/username/preferences', function(req, res) {
+client.get('/mine/preferences', function(req, res) {
 	console.log("REQ.USER = " + req.user);
 	if (req.user) {
 		User.findOne({
@@ -774,7 +810,7 @@ client.get('/user/username/preferences', function(req, res) {
 	}
 });
 
-client.post('/user/username/preferences', function(req, res) {
+client.post('/mine/preferences', function(req, res) {
 	if (req.body.username) {
 		User.update({
 			username: req.user.username
