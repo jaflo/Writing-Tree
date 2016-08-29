@@ -1,6 +1,5 @@
 <!doctype html>
 <html>
-
 <head>
 	<title>Continuity
 		{{#if title}} | {{title}}{{/if}}
@@ -8,7 +7,6 @@
 	<link rel="stylesheet" type="text/css" href="/styles.css">
 	<link rel="stylesheet" type="text/css" href="//opensource.keycdn.com/fontawesome/4.6.3/font-awesome.min.css">
 </head>
-
 <body class="{{#if user}}loggedin{{/if}}{{#if bodyclass}} {{bodyclass}}{{/if}}">
 	<header>
 		<div>
@@ -57,10 +55,10 @@
 	</footer>
 	<div id="cover" class="hidden"></div>
 	<div id="debug"></div>
+	<script src="/socket.io/socket.io.js"></script>
 	<script src="//code.jquery.com/jquery-latest.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 	<script src="//rawgit.com/rmm5t/jquery-timeago/master/jquery.timeago.js"></script>
 	<script src="/script.js"></script>
 </body>
-
 </html>

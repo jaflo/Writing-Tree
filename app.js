@@ -468,7 +468,7 @@ client.get('/story/:id/flag', function(req, res) {
 				res.render('404', {
 					title: "Page not found"
 				});
-			} else if(req.params.id === "0") { 
+			} else if(req.params.id === "0") {
 				failureRedirect(req, res, "You can't flag the home node!");
 			}
 			res.render("flag", story.toObject());
@@ -508,7 +508,7 @@ client.get('/story/:id/edit', function(req, res) {
 		}, function(err, user) {
 			if (err) {
 				failRequest(req, res, "Error, unable to edit.");
-			} 
+			}
 			Story.findOne({
 				"shortID": req.params.id
 			}, function(err, story) {
@@ -540,7 +540,7 @@ client.get('/story/:id/edit', function(req, res) {
 					});
 				}
 			});
-			
+
 		});
 	} else {
 		failRequest(req, res, "Please Log In.");
@@ -577,6 +577,7 @@ client.post('/story/:id/edit', function(req, res) {
 								if (err) {
 									failRequest(req, res, "Error, unable to edit.");
 								} else {
+									io.sockets.to(req.body.shortID).emit("edited", "This page has been edited!");
 									res.redirect("/story/" + req.body.shortID);
 								}
 							});
@@ -586,7 +587,7 @@ client.post('/story/:id/edit', function(req, res) {
 					});
 				}
 			});
-			
+
 		});
 	}
 });
@@ -604,7 +605,7 @@ client.post('/story/:id/remove', function(req, res) {
 				}, function(err, count) {
 					if (err) {
 						failRequest(req, res, "Error, unable to remove.");
-					} 
+					}
 					console.log(count);
 					var parentID = doc.parent;
 					if (count !== 0) {
@@ -628,12 +629,12 @@ client.post('/story/:id/remove', function(req, res) {
 								}
 								io.sockets.to(shortID).emit("removal", "This page has been removed!");
 								res.redirect("/story/" + parentID);
-								
+
 							});
-							
+
 						});
 					}
-					
+
 				});
 			} else {
 				failRequest(req, res, "You cannot delete someone else's post!");
@@ -642,15 +643,6 @@ client.post('/story/:id/remove', function(req, res) {
 	} else {
 		failRequest(req, res, "Please Log In.");
 	}
-});
-
-io.sockets.on('connection', function(socket) {
-	socket.on('editing', function(shortID) {
-		socket.to(shortID).emit("editing", "This page is being edited! Please consider this if you are writing a continuation.");
-	});
-	socket.on('page', function(data) {
-		socket.to(shortID).emit("viewing", "A person is viewing your page right now.");
-	});
 });
 
 function validateFields(req, res, callback) {
@@ -729,6 +721,7 @@ client.post('/create', function(req, res) {
 				});
 				var testt = test.toObject(); // expert naming convention
 				testt["starred"] = false;
+				io.sockets.to(req.body.parent).emit("haschildren", "You cannot edit your post anymore. Someone has continued your story/");
 				completeRequest(req, res, testt, '/story/' + shortID, "Save successful!");
 			}
 		});
